@@ -301,7 +301,7 @@ def operation(instance):
             except errors.HttpError as e:
                 batch_res.append({'msg',e.content})
             
-        return jsonify(res=res,total=len(rel))
+        return jsonify(res=res,total=len(res))
     except errors.HttpError as e:
         msg=json.loads(e.content)
         return jsonify(msg=msg),msg['error']['code']
