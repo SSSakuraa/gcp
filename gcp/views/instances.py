@@ -167,7 +167,7 @@ def gcp_func(func_name, param):
 
 
 @instances.route('/servers/<instance>',methods=['POST'])
-def operation(instance):
+def instance_operation(instance):
     try:
         auth=Auth()
         service=auth.post_service(request)
@@ -302,6 +302,38 @@ def batch_operation():
             except errors.HttpError as e:
                 batch_res.append({'error':json.loads(e.content)['error']['message']})
             
+        return jsonify(res=batch_res,total=len(batch_res))
+    except errors.HttpError as e:
+        msg=json.loads(e.content)
+        return jsonify(msg=msg),msg['error']['code']
+
+
+
+
+
+
+
+@instances.route('/servers/batch',methods=['GET'])
+def batch_info():
+    try:
+        auth=Auth()
+        service=auth.get_service(request)
+        zone=auth.region+'-'+request.args.get('zone')
+        param = {
+                'project':auth.project,
+                'zone':zone,
+                'instance':instance,
+                'service':service,
+        }
+        instances=request.args.get('instances')
+        batch_res=[]
+        for instance in instances:
+            try:
+                param['instance']=instance
+                res=gcp_func("server_get",param)
+                batch_res.append(res)
+            except errors.HttpError as e:
+                batch_res.append({'error':json.loads(e.content)['error']['message']})         
         return jsonify(res=batch_res,total=len(batch_res))
     except errors.HttpError as e:
         msg=json.loads(e.content)
