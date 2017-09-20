@@ -191,12 +191,13 @@ def operation(instance):
 
         if action=='server_on':
             return jsonify(gcp_func('server_on',param))
-        
+
         if action=='server_delete':
             return jsonify(gcp_func('server_delete',param))
 
         if action=='server_reboot':
             return jsonify(gcp_func('server_reboot',param))
+        
         if action=='server_modify':
             inst_info=gcp_func("server_get",param)
             status=inst_info['state']
