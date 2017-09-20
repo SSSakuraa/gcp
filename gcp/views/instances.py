@@ -273,7 +273,8 @@ def batch_operation():
                     
 
                     if status != 'stopped':
-                        return jsonify(msg="The instance is not STOPPED!"),409
+                        batch_res.append("msg":"The instance is not STOPPED!")
+                        continue
                     body={
                             'machineType':machine_type
                             }
