@@ -154,13 +154,12 @@ def gcp_func(func_name, param):
                 }
         return res
     if func_name=="server_reboot":       
-        print('====================')
         gcp_func("server_off",param)
         inst_info=gcp_func("server_get",param)
         status=inst_info['state']
         while status !='stopped':
             status=gcp_func("server_get",param)['state']
-            print status
+            #print status
         res=gcp_func("server_on",param)
         return res
     
@@ -208,7 +207,7 @@ def operation(instance):
                 gcp_func("server_off",param)
                 while status !='stopped':
                     status=gcp_func("server_get",param)['state']
-                    print status
+                    #print status
 
             param['body']=body
             gcp_func("server_modify",param)
