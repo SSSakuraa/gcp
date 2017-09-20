@@ -256,19 +256,19 @@ def batch_operation():
                     res=gcp_func("server_off",param)
                     batch_res.append(res)
 
-                if action=="server_on":
+                elif action=="server_on":
                     res=gcp_func("server_on",param)
                     batch_res.append(res)
 
-                if action=='server_delete':
+                elif action=='server_delete':
                     res=gcp_func('server_delete',param)
                     batch_res.append(res)
 
-                if action=='server_reboot':
+                elif action=='server_reboot':
                     res=gcp_func('server_reboot',param)
                     batch_res.append(res)
 
-                if action=='server_modify':
+                elif action=='server_modify':
                     inst_info=gcp_func("server_get",param)
                     status=inst_info['state']
                     origin_type=inst_info['instance_type']
@@ -298,15 +298,15 @@ def batch_operation():
                     batch_res.append(res)
 
 
-                if action=='server_rebind':
+                elif action=='server_rebind':
                     res={'msg':"server_rebind not supported"}
                     batch_res.append(res)
-
-                res={'msg':"operation "+action+" not found"}
-                batch_res.append(res)    
+                else:
+                    res={'msg':"operation "+action+" not found"}
+                    batch_res.append(res)    
         
             except errors.HttpError as e:
-                batch_res.append({'msg':e.content})
+                batch_res.append({'msg':json.loads(e.content)})
             
         return jsonify(res=batch_res,total=len(batch_res))
     except errors.HttpError as e:
