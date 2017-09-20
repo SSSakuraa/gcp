@@ -181,7 +181,6 @@ def operation(instance):
                 'service':service,
 
                 }
-        pprint(action)
         if action=="server_off": 
             return jsonify(gcp_func("server_off",param))
 
@@ -222,8 +221,87 @@ def operation(instance):
                     'current_inst_type':myresponse['instance_type']
                     }
             return jsonify(res)
+        if action=='server_rebind':
+            return jsonify(msg="server_rebind not supported"),404
+
         res="operation "+action+" not found"
         return jsonify(msg=res),404
+    except errors.HttpError as e:
+        msg=json.loads(e.content)
+        return jsonify(msg=msg),msg['error']['code']
+
+
+@instances.route('/servers/batch',methods=['POST'])
+def operation(instance):
+    try:
+        auth=Auth()
+        service=auth.post_service(request)
+        data=json.loads(request.get_data())
+        zone=auth.region+'-'+data['zone']       
+        action=data['action']
+        param = {
+                'project':auth.project,
+                'zone':zone,
+                'service':service,
+                }
+
+        instances=data['instances']
+        batch_res=[]
+        for instance in instances:
+            try:
+            
+                data['instance']=instance
+                if action=="server_off": 
+                    batch_res.append(gcp_func("server_off",param)
+
+                if action=='server_on':
+                    batch_res.append(gcp_func('server_on',param))
+
+                if action=='server_delete':
+                    batch_res.append(gcp_func('server_delete',param))
+
+                if action=='server_reboot':
+                    batch_res.append(gcp_func('server_reboot',param))
+
+                if action=='server_modify':
+                    inst_info=gcp_func("server_get",param)
+                    status=inst_info['state']
+                    origin_type=inst_info['instance_type']
+                    machine_type='zones/'+zone+'/machineTypes/'+data['dst_inst_type']
+                    body={
+                            'machineType':machine_type
+                            }
+
+                    if status != 'stopped':
+                        gcp_func("server_off",param)
+                        while status !='stopped':
+                            status=gcp_func("server_get",param)['state']
+                            #print status
+
+                    param['body']=body
+                    gcp_func("server_modify",param)
+                    
+                    gcp_func('server_on',param)
+
+                    myresponse=gcp_func('server_get',param)
+
+                    res={
+                            'id':myresponse['id'],
+                            'origin_inst_type':origin_type,
+                            'current_inst_type':myresponse['instance_type']
+                            }
+                    batch_res.append(res)
+
+
+                if action=='server_rebind':
+                    batch_res.append({'msg',"server_rebind not supported"})
+
+                batch_res.append({'msg',"operation "+action+" not found"}
+        
+            except errors.HttpError as e:
+                batch_res.append({'msg',e.content})
+            
+        return jsonify(res=res,total=len(rel))
     except errors.HttpError as e:
         msg=json.loads(e.content)
         return jsonify(msg=msg),msg['error']['code']
