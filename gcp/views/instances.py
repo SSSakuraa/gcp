@@ -351,10 +351,14 @@ def instances_fee():
         request=urllib2.Request("https://cloud.google.com/compute/pricing")
         response=urllib2.urlopen(request)
         html=response.read()
-        city_list = re.split('\n',re.findall(re.compile(r'<md-select([\s\S]*?)</md-select>'),html)[0])
-        
-        pprint(city_list)
 
+        string_list = re.split('\n',re.findall(re.compile(r'<md-select([\s\S]*?)</md-select>'),html)[0])
+        city_dict = {}
+        for string in string_list:
+            if 'value' in string:
+                strings=re.split("\">|\"|<",string)
+                city_dict[strings[2]]=strings[3]
+        pprint(city_dict)
 
         return "haha"
     except errors.HttpError as e:
