@@ -352,8 +352,9 @@ def instances_fee():
         response=urllib2.urlopen(request)
         html=response.read()
         prices_re = re.compile(r'<td cloud-pricer region=(.*)</td>')
-        prices=re.findall(prices_re,html)
-        pprint(prices)
+        prices_list=re.findall(prices_re,html)
+        for prices in prices_list:
+            pprint(prices)
         
 
 
