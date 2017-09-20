@@ -358,7 +358,7 @@ def instances_fee():
         
 
 
-        return prices
+        return "haha"
     except errors.HttpError as e:
         msg=json.loads(e.content)
         return jsonify(msg=msg),msg['error']['code']
