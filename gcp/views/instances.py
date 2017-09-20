@@ -232,7 +232,7 @@ def operation(instance):
 
 
 @instances.route('/servers/batch',methods=['POST'])
-def batch_operation(instance):
+def batch_operation():
     try:
         auth=Auth()
         service=auth.post_service(request)
