@@ -351,7 +351,7 @@ def instances_fee():
         request=urllib2.Request("https://cloud.google.com/compute/pricing")
         response=urllib2.urlopen(request)
         html=response.read()
-        city_list = re.search(re.compile(r'<md-select ng-model=([\s\S*])</md-select>'),html)
+        city_list = re.split('\n',re.findall(re.compile(r'<md-select([\s\S]*?)</md-select>'),html)[0])
         
         pprint(city_list)
 
