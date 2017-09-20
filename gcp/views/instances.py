@@ -345,6 +345,7 @@ def batch_info():
 def instances_fee():
     try:
         import urllib2
+        import re
         user_agent=''
         headers={}
         request=urllib2.Request("https://cloud.google.com/compute/pricing")
