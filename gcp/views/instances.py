@@ -250,7 +250,7 @@ def batch_operation():
         for instance in instances:
             try:          
                 print(instance)
-                data['instance']=instance
+                param['instance']=instance
                 
                 if action=="server_off": 
                     res=gcp_func("server_off",param)
