@@ -341,7 +341,7 @@ def batch_info():
 
 
 
-@instances.route('fee',methods=['GET'])
+@instances.route('/fee',methods=['GET'])
 def instances_fee():
     try:
         import urllib2
@@ -350,7 +350,13 @@ def instances_fee():
         request=urllib2.Request("https://cloud.google.com/compute/pricing")
         response=urllib2.urlopen(request)
         html=response.read()
-        return html
+        prices_re = re.compile(r'<td cloud-pricer region=(.*)</td>')
+        prices=re.findall(prices_re,html)
+        pprint(prices)
+        
+
+
+        return prices
     except errors.HttpError as e:
         msg=json.loads(e.content)
         return jsonify(msg=msg),msg['error']['code']
