@@ -248,20 +248,25 @@ def operation(instance):
         instances=data['instances']
         batch_res=[]
         for instance in instances:
-            try:
-            
+            try:          
+                batch_res["papa"]
                 data['instance']=instance
+                
                 if action=="server_off": 
-                    batch_res.append(gcp_func("server_off",param)
+                    res=gcp_func("server_off",param)
+                    batch_res.append(res)
 
-                if action=='server_on':
-                    batch_res.append(gcp_func('server_on',param))
+                if action=="server_on":
+                    res=gcp_func("server_on",param)
+                    batch_res.append(res)
 
                 if action=='server_delete':
-                    batch_res.append(gcp_func('server_delete',param))
+                    res=gcp_func('server_delete',param)
+                    batch_res.append(res)
 
                 if action=='server_reboot':
-                    batch_res.append(gcp_func('server_reboot',param))
+                    res=gcp_func('server_reboot',param)
+                    batch_res.append(res)
 
                 if action=='server_modify':
                     inst_info=gcp_func("server_get",param)
@@ -294,9 +299,11 @@ def operation(instance):
 
 
                 if action=='server_rebind':
-                    batch_res.append({'msg',"server_rebind not supported"})
+                    res={'msg',"server_rebind not supported"}
+                    batch_res.append(res)
 
-                batch_res.append({'msg',"operation "+action+" not found"}
+                res={'msg',"operation "+action+" not found"}
+                batch_res.append(res)    
         
             except errors.HttpError as e:
                 batch_res.append({'msg',e.content})
