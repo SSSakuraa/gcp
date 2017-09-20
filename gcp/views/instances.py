@@ -201,7 +201,7 @@ def operation(instance):
 
 
             if status != 'stopped':
-                return jsonify(msg="The instance is not STOPPED!"),500
+                return jsonify(msg="The instance is not STOPPED!"),409
 
             body={
                     'machineType':machine_type
@@ -270,20 +270,15 @@ def batch_operation():
                     status=inst_info['state']
                     origin_type=inst_info['instance_type']
                     machine_type='zones/'+zone+'/machineTypes/'+data['dst_inst_type']
+                    
+
+                    if status != 'stopped':
+                        return jsonify(msg="The instance is not STOPPED!"),409
                     body={
                             'machineType':machine_type
                             }
-
-                    if status != 'stopped':
-                        gcp_func("server_off",param)
-                        while status !='stopped':
-                            status=gcp_func("server_get",param)['state']
-                            #print status
-
                     param['body']=body
                     gcp_func("server_modify",param)
-                    
-                    gcp_func('server_on',param)
 
                     myresponse=gcp_func('server_get',param)
 
