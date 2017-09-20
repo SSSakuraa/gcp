@@ -249,6 +249,7 @@ def batch_operation(instance):
         batch_res=[]
         for instance in instances:
             try:          
+                print(instance)
                 batch_res["papa"]
                 data['instance']=instance
                 
