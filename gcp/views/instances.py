@@ -163,6 +163,8 @@ def gcp_func(func_name, param):
             while status !='stopped':
                 status=gcp_func("server_get",param)['state']
                 print status
+
+  
         
         res=gcp_func("server_start",param)
         return res
