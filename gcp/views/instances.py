@@ -273,7 +273,8 @@ def batch_operation():
                     
 
                     if status != 'stopped':
-                        batch_res.append("msg":"The instance is not STOPPED!")
+                        res={"msg":"The instance is not STOPPED!"}
+                        batch_res.append(res)
                         continue
                     body={
                             'machineType':machine_type
