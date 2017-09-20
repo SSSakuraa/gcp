@@ -337,3 +337,20 @@ def batch_info():
     except errors.HttpError as e:
         msg=json.loads(e.content)
         return jsonify(msg=msg),msg['error']['code']
+
+
+
+
+@instances.route('fee',methods=['GET'])
+def instances_fee():
+    try:
+        import urllib2
+        user_agent=''
+        headers={}
+        request=urllib2.Request("https://cloud.google.com/compute/pricing")
+        response=urllib2.urlopen(request)
+        html=response.read()
+        return html
+    except errors.HttpError as e:
+        msg=json.loads(e.content)
+        return jsonify(msg=msg),msg['error']['code']
