@@ -153,16 +153,13 @@ def gcp_func(func_name, param):
                 'state':myresponse['status']
                 }
         return res
-    if func_name=="server_reboot":
-        
+    if func_name=="server_reboot":       
+        gcp_func("server_off",param)
         inst_info=gcp_func("server_get",param)
         status=inst_info['state']
-        
-        if status != 'stopped':
-            gcp_func("server_off",param)
-            while status !='stopped':
-                status=gcp_func("server_get",param)['state']
-                print status
+        while status !='stopped':
+            status=gcp_func("server_get",param)['state']
+            print status
         res=gcp_func("server_start",param)
         return res
     
@@ -184,6 +181,7 @@ def operation(instance):
                 'service':service,
 
                 }
+        pprint(action)
         if action=="server_off": 
             return jsonify(gcp_func("server_off",param))
 
