@@ -164,8 +164,8 @@ def gcp_func(func_name, param):
                 status=gcp_func("server_get",param)['state']
                 print status
 
-  
-        
+
+
         res=gcp_func("server_start",param)
         return res
     return "haha"
@@ -193,6 +193,8 @@ def operation(instance):
             return jsonify(gcp_func('server_on',param))
         if action=='server_delete':
             return jsonify(gcp_func('server_delete',param))
+        if action=='server_reboot':
+            return jsonify(gcp_func('server_reboot',param))
         if action=='server_modify':
             inst_info=gcp_func("server_get",param)
             status=inst_info['state']
