@@ -360,6 +360,11 @@ def instances_fee():
                 city_dict[strings[2]]=strings[3]
         pprint(city_dict)
 
+        string_list=re.split('<td',re.findall(re.compile(r'<tr>([\s\S]*?)</tr>')))
+        price_dict={}
+        for string in string_list:
+            pprint(string)
+
         return "haha"
     except errors.HttpError as e:
         msg=json.loads(e.content)
