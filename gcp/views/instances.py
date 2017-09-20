@@ -322,10 +322,9 @@ def batch_info():
         param = {
                 'project':auth.project,
                 'zone':zone,
-                'instance':instance,
                 'service':service,
         }
-        instances=request.args.get('instances')
+        instances=list(eval(request.args.get('instances')))
         batch_res=[]
         for instance in instances:
             try:
