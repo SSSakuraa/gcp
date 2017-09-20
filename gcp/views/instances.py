@@ -250,7 +250,6 @@ def batch_operation(instance):
         for instance in instances:
             try:          
                 print(instance)
-                batch_res["papa"]
                 data['instance']=instance
                 
                 if action=="server_off": 
@@ -300,14 +299,14 @@ def batch_operation(instance):
 
 
                 if action=='server_rebind':
-                    res={'msg',"server_rebind not supported"}
+                    res={'msg':"server_rebind not supported"}
                     batch_res.append(res)
 
-                res={'msg',"operation "+action+" not found"}
+                res={'msg':"operation "+action+" not found"}
                 batch_res.append(res)    
         
             except errors.HttpError as e:
-                batch_res.append({'msg',e.content})
+                batch_res.append({'msg':e.content})
             
         return jsonify(res=res,total=len(res))
     except errors.HttpError as e:
