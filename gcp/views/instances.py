@@ -299,14 +299,14 @@ def batch_operation():
 
 
                 elif action=='server_rebind':
-                    res={'msg':"server_rebind not supported"}
+                    res={'error':"server_rebind not supported"}
                     batch_res.append(res)
                 else:
-                    res={'msg':"operation "+action+" not found"}
+                    res={'error':"operation "+action+" not found"}
                     batch_res.append(res)    
         
             except errors.HttpError as e:
-                batch_res.append({'msg':json.loads(e.content)})
+                batch_res.append({'error':json.loads(e.content)['error']['message']})
             
         return jsonify(res=batch_res,total=len(batch_res))
     except errors.HttpError as e:
