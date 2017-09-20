@@ -164,8 +164,9 @@ def gcp_func(func_name, param):
                 status=gcp_func("server_get",param)['state']
                 print status
         res=gcp_func("server_start",param)
-    return res
-return "haha"
+        return res
+    
+    return "haha"
 
 
 @instances.route('/servers/<instance>',methods=['POST'])
