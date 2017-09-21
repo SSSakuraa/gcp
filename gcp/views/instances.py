@@ -3,6 +3,7 @@ from pprint import pprint
 from flask import jsonify
 from flask import request
 from auth import Auth
+from regions import Region
 import json
 
 from googleapiclient import errors
@@ -345,15 +346,14 @@ def batch_info():
 def instances_fee():
     try:
         from gcp import fee
-        import regions
         auth=Auth()
         service=auth.get_service(request)
         ebs=request.args.get('ebs')
         instance_type=request.args.get('instance_type')
-        region_id=auth.region
+        
         os=request.args.get('os')
         quantity=request.args.get('quantity')
-        total_compute=(fee.price_dict[instance_type]['price'][get_region_name(region_id)])*quantity
+        total_compute=(fee.price_dict[instance_type]['price'][Region().get_region_name(auth.region)])*quantity
         total_ebs=0
         total=total_compute+total_ebs
         res={
