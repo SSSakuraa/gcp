@@ -56,7 +56,7 @@ class Fee(object):
                 for price in prices:
                     if 'monthly' in price:
                         price=re.split('-monthly=\"|\"',price.strip())
-                        price_info[city_dict[price[0]]]=price[1][1:]
+                        price_info[city_dict[price[0]]]=float(price[1][1:])
 
             if len(price_dict)==21:
                 break
@@ -81,7 +81,7 @@ class Fee(object):
                 for price in td_list:
                     if '-monthly=' in price:
                         price=re.split('-monthly=\'|\'',price.strip())
-                        standard_price[city_dict[price[0]]]=price[1][1:]
+                        standard_price[city_dict[price[0]]]=float(price[1][1:])
             elif "<td>SSD provisioned space</td>" in tr:
                 ssd_price={}
                 price_dict['ssd']=ssd_price
@@ -89,7 +89,7 @@ class Fee(object):
                 for price in td_list:
                     if '-monthly=' in price:
                         price=re.split('-monthly=\'|\'',price.strip())
-                        ssd_price[city_dict[price[0]]]=price[1][1:]
+                        ssd_price[city_dict[price[0]]]=float(price[1][1:])
             elif "<td>Snapshot storage</td>" in tr:
                 snapshot_price={}
                 price_dict['snapshot']=ssd_price
@@ -97,7 +97,7 @@ class Fee(object):
                 for price in td_list:
                     if '-monthly=' in price:
                         price=re.split('-monthly=\'|\'',price.strip())
-                        snapshot_price[city_dict[price[0]]]=price[1][1:]
+                        snapshot_price[city_dict[price[0]]]=float(price[1][1:])
 #                pprint(price_dict)
         return price_dict
 
