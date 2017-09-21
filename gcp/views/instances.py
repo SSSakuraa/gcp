@@ -35,7 +35,7 @@ def instance_getinfo(instance):
 def instance_create():
     try:
         import rstr
-        name = rstr.xeger(' [a-z](?:[-a-z0-9]{0,61}[a-z0-9])?')
+        name = rstr.xeger('[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?')
 
         auth = Auth()
         service = auth.post_service(request)
