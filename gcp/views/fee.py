@@ -4,9 +4,9 @@ from pprint import pprint
 
 class Fee(object):
     def __init__(self):
-        price_dict=instances_fee()
+        self.price_dict=self.instances_fee()
 
-    def instances_fee():
+    def instances_fee(self):
 
         user_agent=''
         headers={}

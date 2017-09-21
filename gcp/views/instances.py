@@ -353,7 +353,7 @@ def instances_fee():
         os=request.args.get('os')
         quantity=request.args.get('quantity')
 
-        total_compute=(fee.instances_fee[instance_type]['price'][regions[region]])*quantity
+        total_compute=(fee.price_dict[instance_type]['price'][regions[region]])*quantity
         total_ebs=0
         total=total_compute+total_ebs
         res={
