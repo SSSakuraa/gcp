@@ -345,24 +345,27 @@ def batch_info():
 @instances.route('/fee',methods=['GET'])
 def instances_fee():
     try:
-        from gcp import fee
+        from gcp import fee 
         auth=Auth()
         service=auth.get_service(request)
-        ebs=request.args.get('ebs')
+        ebs=list(eval(request.args.get('ebs')))
         instance_type=request.args.get('instance_type')
-        
+    
         os=request.args.get('os')
         quantity=request.args.get('quantity')
         total_compute=round(float(fee.instance_price[instance_type]['price'][Region().get_region_name(auth.region)])*int(quantity),2)
-        total_ebs=round(float(fee.disk_price[ebs['type']][Region().get_region_name(auth.region)]*int(ebs['size'])),2)
+        total_ebs=0
+        for each_ebs in ebs:
+            total_ebs+=round(float(fee.disk_price[each_ebs['type']][Region().get_region_name(auth.region)])*int(each_ebs['size']),2)
         total=total_compute+total_ebs
         res={
-            'compute':total,
+            'compute':total_compute,
             'ebs':total_ebs,
             'total':total
-        }
+        }   
         return jsonify(res)
     except errors.HttpError as e:
         msg=json.loads(e.content)
         return jsonify(msg=msg),msg['error']['code']
+
                                                        

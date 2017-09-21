@@ -74,7 +74,7 @@ class Fee(object):
         tr_list=re.findall(re.compile(r'<tr>([\s\S]*?)</tr>'),html)
         price_dict={}
         for tr in tr_list:
-            if "Standard provisioned space" in tr: 
+            if "Standard provisioned space" in tr:
                 standard_price={}
                 price_dict['standard']=standard_price
                 td_list=re.split('\n',tr)
@@ -82,7 +82,7 @@ class Fee(object):
                     if '-monthly=' in price:
                         price=re.split('-monthly=\'|\'',price.strip())
                         standard_price[city_dict[price[0]]]=price[1][1:]
-            elif "<td>SSD provisioned space</td>" in tr: 
+            elif "<td>SSD provisioned space</td>" in tr:
                 ssd_price={}
                 price_dict['ssd']=ssd_price
                 td_list=re.split('\n',tr)
@@ -90,7 +90,7 @@ class Fee(object):
                     if '-monthly=' in price:
                         price=re.split('-monthly=\'|\'',price.strip())
                         ssd_price[city_dict[price[0]]]=price[1][1:]
-            elif "<td>Snapshot storage</td>" in tr: 
+            elif "<td>Snapshot storage</td>" in tr:
                 snapshot_price={}
                 price_dict['snapshot']=ssd_price
                 td_list=re.split('\n',tr)
@@ -100,3 +100,4 @@ class Fee(object):
                         snapshot_price[city_dict[price[0]]]=price[1][1:]
 #                pprint(price_dict)
         return price_dict
+
