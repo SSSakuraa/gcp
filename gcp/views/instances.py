@@ -354,7 +354,7 @@ def instances_fee():
         os=request.args.get('os')
         quantity=request.args.get('quantity')
         total_compute=round(float(fee.instance_price[instance_type]['price'][Region().get_region_name(auth.region)])*int(quantity),2)
-        total_ebs=0
+        total_ebs=round(float(fee.disk_price[ebs['type']][Region().get_region_name(auth.region)]*int(ebs['size'])),2)
         total=total_compute+total_ebs
         res={
             'compute':total,
