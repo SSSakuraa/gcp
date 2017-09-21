@@ -28,7 +28,7 @@ class Auth(object):
         if request.args.get('region_id')!=None:
             self.region=request.args.get('region_id')
         elif request.args.get('region_name')!=None:
-            self.region=get_region_id(request.args.get('region_name'))
+            self.region=Region().get_region_id(request.args.get('region_name'))
 #        if request.args.get('zone')!=None and self.region != '':
 #            self.zone=self.region+'-'+request.args.get('zone')
         
@@ -53,7 +53,7 @@ class Auth(object):
         if data.has_key('region_id'):
             self.region=data['region_id']
         elif data.has_key('region_name'):
-            self.region=get_region_id(data['region_name'])
+            self.region=Region().get_region_id(data['region_name'])
 #        if data.has_key('zone') and self.region != '':
 #            self.zone=self.region+'-'+data['zone']
         
