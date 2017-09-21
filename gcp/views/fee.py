@@ -5,7 +5,7 @@ from pprint import pprint
 class Fee(object):
     def __init__(self):
         self.city_dict=self.get_city()
-        self.instance_price=self.instance_fee()
+        self.instance_price=self.instance_price()
         self.disk_price=self.disk_price()
     
 
