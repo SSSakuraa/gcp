@@ -44,7 +44,7 @@ class Fee(object):
                 machine_info['price']=price_info
                 for price in prices:
                     if 'monthly' in price:
-                        price=re.split('-monthly=\"$|\"',price.strip())
+                        price=re.split('-monthly=\"|\"',price.strip())
                         price_info[city_dict[price[0]]]=price[1][1:]
 
             if len(price_dict)==21:
