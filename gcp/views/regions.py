@@ -1,5 +1,5 @@
 
-regions={
+regions_info={
         'Iowa':'us-central1',
         'Oregon':'us-west1',
         'South Carolina':'us-east1',
@@ -15,9 +15,9 @@ regions={
         }
 
 def region_match(region_id,region_name):
-    if regions.has_key(region_name)==False:
+    if region_name in regions_info==False:
         return False
-    if regions[region_name]==region_id:
+    if regions_info[region_name]==region_id:
         return True
     else:
         return False
@@ -25,15 +25,15 @@ def region_match(region_id,region_name):
 
 
 def get_region_id(region_name):
-    if regions.has_key(region_name):
-        return regions[region_name]
+    if region_name in regions_info:
+        return regions_info[region_name]
     else:
         return ""
 
 
 
 def get_region_name(region_id):
-    for k,v in regions.items():
+    for k,v in regions_info.items():
         if v==region_id:
             return k
     return ""

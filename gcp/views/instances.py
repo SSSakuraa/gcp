@@ -345,6 +345,7 @@ def batch_info():
 def instances_fee():
     try:
         from gcp import fee
+        from regions import *
         auth=Auth()
         service=auth.get_service(request)
         ebs=request.args.get('ebs')
@@ -352,8 +353,8 @@ def instances_fee():
         region=auth.region
         os=request.args.get('os')
         quantity=request.args.get('quantity')
-
-        total_compute=(fee.price_dict[instance_type]['price'][regions[region]])*quantity
+        
+        total_compute=(fee.price_dict[instance_type]['price'][get_region_id(region)])*quantity
         total_ebs=0
         total=total_compute+total_ebs
         res={
