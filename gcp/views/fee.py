@@ -71,20 +71,15 @@ class Fee(object):
         html=response.read()
 
         city_dict=self.city_dict
-        tr_list=re.findall(re.compile(r'<tr>([\s\S]*?)</tr>'),html) 
+        tr_list=re.findall(re.compile(r'<tr>([\s\S]*?)</tr>'),html)
         price_dict={}
-        machine_info={}
         for tr in tr_list:
             if "Standard provisioned space" in tr: 
-                td_list=re.split('</td>',tr)
-                for td in td_list:
-                    prices=re.split('\n',td.strip())
-                    price_info={}
-                    for price in prices:
-                        if 'monthly' in price:
-                            price=re.split('-monthly=\"|\"',price.strip())
-                            price_info[city_dict[price[0]]]=price[1][1:]
+                td_list=re.split('\n',tr)
+                for price in td_list:
+                    if '-monthly=' in price:
+                        price=re.split('-monthly=\'|\'',price.strip())
+                        price_dict[city_dict[price[0]]]=price[1][1:]
 
-            break
-            pprint(price_dict)
+#                pprint(price_dict)
         return price_dict
