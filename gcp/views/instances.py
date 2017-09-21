@@ -352,20 +352,44 @@ def instances_fee():
         response=urllib2.urlopen(request)
         html=response.read()
 
-        string_list = re.split('\n',re.findall(re.compile(r'<md-select([\s\S]*?)</md-select>'),html)[0])
+        select_list = re.split('\n',re.findall(re.compile(r'<md-select([\s\S]*?)</md-select>'),html)[0])
         city_dict = {}
-        for string in string_list:
-            if 'value' in string:
-                strings=re.split("\">|\"|<",string)
-                city_dict[strings[2]]=strings[3]
-        pprint(city_dict)
-
-        string_list=re.split('<td',re.findall(re.compile(r'<tr>([\s\S]*?)</tr>')))
+        for option in select_list:
+            if 'value' in option:
+                citys=re.split("\">|\"|<",option)
+                city_dict[citys[2]]=citys[3]
+        #pprint(city_dict)
+        tr_list=re.findall(re.compile(r'<tr>([\s\S]*?)</tr>'),html)
         price_dict={}
-        for string in string_list:
-            pprint(string)
+        machine_info={}
+        for tr in tr_list:
+            if "monthly" in tr: 
+                td_list=re.split('</td>',tr)
+                machine_type=re.findall(re.compile(r'[a-z][0-9]+-[a-z]+[-0-9]*'),td_list[0])[0]
+                price_dict[machine_type]=machine_info
+                if 'default' in td_list[1]:
+                    cpu=re.split('default=\"|\">',td_list[1])[1]
+                else:
+                    cpu=re.split('<td>',td_list[1])[1]
+                machine_info['cpu']=cpu
+                if 'default' in td_list[2]:
+                    memory=re.split('default=\"|\">',td_list[2])[1]
+                else:
+                    memory=re.split('<td>',td_list[1])[1]
+                machine_info['memory']=memory
+                prices=re.split('\n',td_list[3].strip())
+                price_info={}
+                machine_info['price']=price_info
+                for price in prices:
+                    if 'monthly' in price:
+                        price=re.split('-monthly=\"|\"',price.strip())
+                        price_info[city_dict[price[0]]]=price[1]
 
-        return "haha"
+            if len(price_dict)==21:
+                break
+#        pprint(price_dict)
+        return jsonify(price_dict)
     except errors.HttpError as e:
         msg=json.loads(e.content)
         return jsonify(msg=msg),msg['error']['code']
+                                                       
