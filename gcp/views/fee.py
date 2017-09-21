@@ -4,10 +4,12 @@ from pprint import pprint
 
 class Fee(object):
     def __init__(self):
-        self.price_dict=self.instances_fee()
+        self.city_dict=self.get_city()
+        self.instance_price=self.instance_fee()
+        self.disk_price=self.disk_price()
+    
 
-    def instances_fee(self):
-
+    def get_city(self):
         user_agent=''
         headers={}
         request=urllib2.Request("https://cloud.google.com/compute/pricing")
@@ -20,7 +22,16 @@ class Fee(object):
             if 'value' in option:
                 citys=re.split("\">|\"|<",option)
                 city_dict[citys[2]]=citys[3]
-        #pprint(city_dict)
+        return city_dict
+
+    def instance_price(self):
+        user_agent=''
+        headers={}
+        request=urllib2.Request("https://cloud.google.com/compute/pricing")
+        response=urllib2.urlopen(request)
+        html=response.read()
+
+        city_dict=self.city_dict
         tr_list=re.findall(re.compile(r'<tr>([\s\S]*?)</tr>'),html) 
         price_dict={}
         machine_info={}
@@ -50,4 +61,30 @@ class Fee(object):
             if len(price_dict)==21:
                 break
     #        pprint(price_dict)
+        return price_dict
+
+    def disk_price(self):
+        user_agent=''
+        headers={}
+        request=urllib2.Request("https://cloud.google.com/compute/pricing")
+        response=urllib2.urlopen(request)
+        html=response.read()
+
+        city_dict=self.city_dict
+        tr_list=re.findall(re.compile(r'<tr>([\s\S]*?)</tr>'),html) 
+        price_dict={}
+        machine_info={}
+        for tr in tr_list:
+            if "Standard provisioned space" in tr: 
+                td_list=re.split('</td>',tr)
+                for td in td_list:
+                    prices=re.split('\n',td.strip())
+                    price_info={}
+                    for price in prices:
+                        if 'monthly' in price:
+                            price=re.split('-monthly=\"|\"',price.strip())
+                            price_info[city_dict[price[0]]]=price[1][1:]
+
+            break
+            pprint(price_dict)
         return price_dict
