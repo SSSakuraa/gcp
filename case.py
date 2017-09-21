@@ -4,47 +4,47 @@ import json
 import urllib
 import commands
 import re
-
+from pprint import pprint
 # Credential params
-credentials={
-        "client_id": "764086051850-6qr4p6gpi6hn506pt8ejuq83di341hur.apps.googleusercontent.com",
-        "client_secret": "d-FL95Q19q7MQmFpd7hHD0Ty",
-        "refresh_token": "1/SpPoXuKbSJhph1KfT_SmyzDdXeM2EHs-A7bPNdLsk_o",
-        "type": "authorized_user"
-        }
+credentials = {
+    "client_id": "764086051850-6qr4p6gpi6hn506pt8ejuq83di341hur.apps.googleusercontent.com",
+    "client_secret": "d-FL95Q19q7MQmFpd7hHD0Ty",
+    "refresh_token": "1/SpPoXuKbSJhph1KfT_SmyzDdXeM2EHs-A7bPNdLsk_o",
+    "type": "authorized_user"
+}
 
 # encrypt for google credential params
 def aes_encrypt():
-    key="sakura"
-    inst=AESCipher(key)
-    body=credentials
+    key = "sakura"
+    inst = AESCipher(key)
+    body = credentials
 #    print json.dumps(body,indent=4)
-    body['client_id']=inst.encrypt(credentials['client_id'])
-    body['client_secret']=inst.encrypt(credentials['client_secret'])
-    body['refresh_token']=inst.encrypt(credentials['refresh_token'])
+    body['client_id'] = inst.encrypt(credentials['client_id'])
+    body['client_secret'] = inst.encrypt(credentials['client_secret'])
+    body['refresh_token'] = inst.encrypt(credentials['refresh_token'])
 #    print json.dumps(body,indent=4)
 
 
 if __name__=="__main__":
-    ip="35.197.44.232"
+    ip = "35.197.44.232"
     aes_encrypt()
-    string=raw_input("input the command index:")
-    while string!="quit":
+    string = raw_input("input the command index:")
+    while string != "quit":
         # not defined in doc.
-        if string=="get/vpcs/list":
-            form_data={
-                    'client_id':credentials['client_id'],
-                    'client_secret':credentials['client_secret'],
-                    'refresh_token':credentials['refresh_token'],
-                    'project_id':'saintern-175510',
-#                    'project_id':'dsafdsfa'
-                    }
-            url_data=urllib.urlencode(form_data)
+        if string == "get/vpcs/list":
+            form_data = {
+                'client_id': credentials['client_id'],
+                'client_secret': credentials['client_secret'],
+                'refresh_token': credentials['refresh_token'],
+                'project_id': 'saintern-175510',
+                # 'project_id':'dsafdsfa'
+            }
+            url_data = urllib.urlencode(form_data)
 
-            url="http://"+ip+":5000/vpcs/list?"+url_data
-            command = "curl '%s' -i 2>/dev/null" % url
-            print command
-            res=commands.getoutput(command) 
+            url = "http://" + ip + ":5000/vpcs/list?" + url_data
+            command = "curl '%s' -i" % url
+            pprint(command)
+            res = commands.getoutput(command)
             print(res)
 
         # get instance information.
@@ -63,8 +63,8 @@ if __name__=="__main__":
 #            instance_id="instance-1"
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/servers/"+instance_id+"?"+url_data
-            command = "curl '%s' -i  2>/dev/null" % url
-            print command
+            command = "curl '%s' -i" % url
+            pprint(command)
             res=commands.getoutput(command) 
             print(res)
 
@@ -90,8 +90,8 @@ if __name__=="__main__":
 #            instance_id="instance-1"
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/servers"
-            command = "curl '%s' -i -d '%s' -X POST  2>/dev/null" % (url, json.dumps(form_data))
-            print command
+            command = "curl '%s' -i -d '%s' -X POST " % (url, json.dumps(form_data))
+            pprint(command)
             res=commands.getoutput(command) 
             print(res)
 
@@ -112,8 +112,8 @@ if __name__=="__main__":
             instance_id=string[13:len(string)-3]
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/servers/"+instance_id
-            command = "curl '%s' -i -X POST -d '%s' 2>/dev/null" % (url,json.dumps(form_data))
-            print command
+            command = "curl '%s' -i -X POST -d '%s' " % (url,json.dumps(form_data))
+            pprint(command)
             res=commands.getoutput(command) 
             print(res)
 
@@ -136,8 +136,8 @@ if __name__=="__main__":
             instance_id=string[13:len(string)-4]
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/servers/"+instance_id
-            command = "curl '%s' -i -X POST -d '%s' 2>/dev/null" % (url,json.dumps(form_data))
-            print command
+            command = "curl '%s' -i -X POST -d '%s' " % (url,json.dumps(form_data))
+            pprint(command)
             res=commands.getoutput(command) 
             print(res)
 
@@ -158,8 +158,8 @@ if __name__=="__main__":
             instance_id=string[13:len(string)-7]
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/servers/"+instance_id
-            command = "curl '%s' -i -X POST -d '%s' 2>/dev/null" % (url,json.dumps(form_data))
-            print command
+            command = "curl '%s' -i -X POST -d '%s' " % (url,json.dumps(form_data))
+            pprint(command)
             res=commands.getoutput(command) 
             print(res)
         # instance operations
@@ -179,8 +179,8 @@ if __name__=="__main__":
             instance_id=string[13:len(string)-4]
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/servers/"+instance_id
-            command = "curl '%s' -i -X POST -d '%s' 2>/dev/null" % (url,json.dumps(form_data))
-            print command
+            command = "curl '%s' -i -X POST -d '%s'" % (url,json.dumps(form_data))
+            pprint(command)
             res=commands.getoutput(command) 
             print(res)
         
@@ -204,8 +204,8 @@ if __name__=="__main__":
             instance_id=string[13:len(string)-7]
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/servers/"+instance_id
-            command = "curl '%s' -i -X POST -d '%s' 2>/dev/null" % (url,json.dumps(form_data))
-            print command
+            command = "curl '%s' -i -X POST -d '%s' " % (url,json.dumps(form_data))
+            pprint(command)
             res=commands.getoutput(command) 
             print(res)
         elif re.match(r"post/servers/(.*)/reboot",string)!=None:
@@ -227,8 +227,8 @@ if __name__=="__main__":
             instance_id=string[13:len(string)-7]
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/servers/"+instance_id
-            command = "curl '%s' -i -X POST -d '%s' 2>/dev/null" % (url,json.dumps(form_data))
-            print command
+            command = "curl '%s' -i -X POST -d '%s' " % (url,json.dumps(form_data))
+            pprint(command)
             res=commands.getoutput(command)
             print(res)
         elif string == "post/servers/batch":
@@ -248,8 +248,8 @@ if __name__=="__main__":
                     }
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/servers/batch"
-            command = "curl '%s' -i -X POST -d '%s'  2>/dev/null" % (url,json.dumps(form_data))
-            print command
+            command = "curl '%s' -i -X POST -d '%s' " % (url,json.dumps(form_data))
+            pprint(command)
             res=commands.getoutput(command)
             print(res)
         # create instance
@@ -267,8 +267,8 @@ if __name__=="__main__":
                     }
             url_data=urllib.urlencode(form_data)
             url='http://'+ip+':5000/servers/batch?'+url_data
-            command = "curl '%s' -i -X GET 2>/dev/null" % url
-            print command
+            command = "curl '%s' -i -X GET " % url
+            pprint(command)
             res=commands.getoutput(command)
             print(res)
         elif string=="fee":
@@ -293,8 +293,8 @@ if __name__=="__main__":
 #            instance_id="instance-1"
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/fee?"+url_data
-            command = "curl '%s' -i  2>/dev/null" % url
-            print command
+            command = "curl '%s' -i  " % url
+            pprint(command)
             res=commands.getoutput(command) 
             print(res)
 
