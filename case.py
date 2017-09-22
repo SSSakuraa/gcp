@@ -237,7 +237,7 @@ if __name__=="__main__":
                     'zone':'a',
                     'dry_run':True,
                     'dst_inst_type':'n1-standard-8',
-                    'instances':["instance-1","instance-2","dsfsdaf","papa"]
+                    'instances':"["instance-1","instance-2","dsfsdaf","papa"]
                     }
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/servers/batch"
