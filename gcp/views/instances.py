@@ -376,13 +376,12 @@ def gcp_func(func_name, param):
         }
         network_if=myresponse['networkInterfaces']
         ip=[]
+        eip=""
         for interface in network_if:
             ip.append(interface['networkIP'])
         if 'accessConfigs' in network_if[0]:
             if 'natIP' in network_if[0]['accessConfigs'][0]:
                 eip = network_if[0]['accessConfigs'][0]['natIP']
-            else:
-                eip = None
         res = {
             "id": myresponse["id"],
             "launch_time": myresponse["creationTimestamp"],
