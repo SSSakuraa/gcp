@@ -379,7 +379,8 @@ def gcp_func(func_name, param):
         for interface in network_if:
             ip.append(interface['networkIP'])
         if 'accessConfigs' in network_if[0]:
-            eip = network_if[0]['accessConfigs'][0]['natIP']
+            if 'natIP' in network_if[0]['accessConfigs'][0]:
+                eip = network_if[0]['accessConfigs'][0]['natIP']
         else:
             eip = None
         res = {
