@@ -54,15 +54,14 @@ if __name__=="__main__":
                     'client_secret':credentials['client_secret'],
                     'refresh_token':credentials['refresh_token'],
                     'project_id':'saintern-175510',
-#                    'region_id':'us-east1',
+                    'region_id':'us-west1',
                     'region_name':'Oregon',
 #                    'project_id':'dsafdsfa'
                     'zone':'a',
                     }
-            instance_id=string[12:]
-#            instance_id="instance-1"
+            instance_name=string[12:]
             url_data=urllib.urlencode(form_data)
-            url="http://"+ip+":5000/servers/"+instance_id+"?"+url_data
+            url="http://"+ip+":5000/servers/"+instance_name+"?"+url_data
             command = "curl '%s' -i" % url
             pprint(command)
             res=commands.getoutput(command) 
@@ -102,16 +101,16 @@ if __name__=="__main__":
                     'client_secret':credentials['client_secret'],
                     'refresh_token':credentials['refresh_token'],
                     'project_id':'saintern-175510',
-#                    'region_id':'us-est1',
+                    'region_id':'us-west1',
                     'region_name':'Oregon',
 #                    'project_id':'dsafdsfa'
                     'action':'server_on',
                     'zone':'a',
                     'dry_run':True
                     }
-            instance_id=string[13:len(string)-3]
+            instance_name=string[13:len(string)-3]
             url_data=urllib.urlencode(form_data)
-            url="http://"+ip+":5000/servers/"+instance_id
+            url="http://"+ip+":5000/servers/"+instance_name
             command = "curl '%s' -i -X POST -d '%s' " % (url,json.dumps(form_data))
             pprint(command)
             res=commands.getoutput(command) 
@@ -126,16 +125,15 @@ if __name__=="__main__":
                     'client_secret':credentials['client_secret'],
                     'refresh_token':credentials['refresh_token'],
                     'project_id':'saintern-175510',
-#                    'region_id':'us-est1',
                     'region_name':'Oregon',
-#                    'project_id':'dsafdsfa'
+                    'region_id':'us-west1',
                     'action':'server_off',
                     'zone':'a',
-                    'dry_run':True
+                    'dry_run':False
                     }
-            instance_id=string[13:len(string)-4]
+            instance_name=string[13:len(string)-4]
             url_data=urllib.urlencode(form_data)
-            url="http://"+ip+":5000/servers/"+instance_id
+            url="http://"+ip+":5000/servers/"+instance_name
             command = "curl '%s' -i -X POST -d '%s' " % (url,json.dumps(form_data))
             pprint(command)
             res=commands.getoutput(command) 
@@ -148,20 +146,20 @@ if __name__=="__main__":
                     'client_secret':credentials['client_secret'],
                     'refresh_token':credentials['refresh_token'],
                     'project_id':'saintern-175510',
-#                    'region_id':'us-est1',
+                    'region_id':'us-west1',
                     'region_name':'Oregon',
-#                    'project_id':'dsafdsfa'
                     'action':'server_delete',
                     'zone':'a',
                     'dry_run':True
                     }
-            instance_id=string[13:len(string)-7]
+            instance_name=string[13:len(string)-7]
             url_data=urllib.urlencode(form_data)
-            url="http://"+ip+":5000/servers/"+instance_id
+            url="http://"+ip+":5000/servers/"+instance_name
             command = "curl '%s' -i -X POST -d '%s' " % (url,json.dumps(form_data))
             pprint(command)
             res=commands.getoutput(command) 
             print(res)
+
         # instance operations
         elif re.match(r"post/servers/(.*)/oft",string)!=None:
             form_data={
@@ -169,16 +167,15 @@ if __name__=="__main__":
                     'client_secret':credentials['client_secret'],
                     'refresh_token':credentials['refresh_token'],
                     'project_id':'saintern-175510',
-#                    'region_id':'us-est1',
+                    'region_id':'us-west1',
                     'region_name':'Oregon',
-#                    'project_id':'dsafdsfa'
                     'action':'server_oft',
                     'zone':'a',
                     'dry_run':True
                     }
-            instance_id=string[13:len(string)-4]
+            instance_name=string[13:len(string)-4]
             url_data=urllib.urlencode(form_data)
-            url="http://"+ip+":5000/servers/"+instance_id
+            url="http://"+ip+":5000/servers/"+instance_name
             command = "curl '%s' -i -X POST -d '%s'" % (url,json.dumps(form_data))
             pprint(command)
             res=commands.getoutput(command) 
@@ -186,60 +183,56 @@ if __name__=="__main__":
         
         # instance operations
         elif re.match(r"post/servers/(.*)/modify",string)!=None:
-#        elif string == "get":
-#            string='post/servers/papa/modify'
             form_data={
                     'client_id':credentials['client_id'],
                     'client_secret':credentials['client_secret'],
                     'refresh_token':credentials['refresh_token'],
                     'project_id':'saintern-175510',
-#                    'region_id':'us-est1',
+                    'region_id':'us-west1',
                     'region_name':'Oregon',
-#                    'project_id':'dsafdsfa'
                     'action':'server_modify',
                     'zone':'a',
                     'dry_run':True,
-                    'dst_inst_type':'n1-standardddddd-2'
+                    'dst_inst_type':'n1-standard-2'
                     }
-            instance_id=string[13:len(string)-7]
+            instance_name=string[13:len(string)-7]
             url_data=urllib.urlencode(form_data)
-            url="http://"+ip+":5000/servers/"+instance_id
+            url="http://"+ip+":5000/servers/"+instance_name
             command = "curl '%s' -i -X POST -d '%s' " % (url,json.dumps(form_data))
             pprint(command)
             res=commands.getoutput(command) 
             print(res)
-        elif re.match(r"post/servers/(.*)/reboot",string)!=None:
 
-#        elif string == "get":
-#            string='post/servers/papa/modify'
+        # instance operations
+        elif re.match(r"post/servers/(.*)/reboot",string)!=None:
             form_data={
                     'client_id':credentials['client_id'],
                     'client_secret':credentials['client_secret'],
                     'refresh_token':credentials['refresh_token'],
                     'project_id':'saintern-175510',
-#                    'region_id':'us-est1',
+                    'region_id':'us-west1',
                     'region_name':'Oregon',
-#                    'project_id':'dsafdsfa'
                     'action':'server_reboot',
                     'zone':'a',
                     'dry_run':True
                     }
-            instance_id=string[13:len(string)-7]
+            instance_name=string[13:len(string)-7]
             url_data=urllib.urlencode(form_data)
-            url="http://"+ip+":5000/servers/"+instance_id
+            url="http://"+ip+":5000/servers/"+instance_name
             command = "curl '%s' -i -X POST -d '%s' " % (url,json.dumps(form_data))
             pprint(command)
             res=commands.getoutput(command)
             print(res)
+
+        # instance batch operations
         elif string == "post/servers/batch":
             form_data={
                     'client_id':credentials['client_id'],
                     'client_secret':credentials['client_secret'],
                     'refresh_token':credentials['refresh_token'],
                     'project_id':'saintern-175510',
-#                    'region_id':'us-est1',
+                    'region_id':'us-west1',
                     'region_name':'Oregon',
-#                    'project_id':'dsafdsfa'
                     'action':'server_modify',
                     'zone':'a',
                     'dry_run':True,
@@ -252,16 +245,16 @@ if __name__=="__main__":
             pprint(command)
             res=commands.getoutput(command)
             print(res)
-        # create instance
+
+        # instance batch info
         elif string == "get/servers/batch":
             form_data={
                     'client_id':credentials['client_id'],
                     'client_secret':credentials['client_secret'],
                     'refresh_token':credentials['refresh_token'],
                     'project_id':'saintern-175510',
-#                    'region_id':'us-est1',
+                    'region_id':'us-west1',
                     'region_name':'Oregon',
-#                    'project_id':'dsafdsfa'
                     'zone':'a',
                     'instances':['instance-1','instance-2','dsfsdaf','papa']
                     }
@@ -271,20 +264,21 @@ if __name__=="__main__":
             pprint(command)
             res=commands.getoutput(command)
             print(res)
+        
+        # instance fee
         elif string=="fee":
             form_data={
                     'client_id':credentials['client_id'],
                     'client_secret':credentials['client_secret'],
                     'refresh_token':credentials['refresh_token'],
                     'project_id':'saintern-175510',
-#                    'region_id':'us-east1',
+                    'region_id':'us-west1',
                     'region_name':'Oregon',
-#                    'project_id':'dsafdsfa'
                     'instance_type':'n1-standard-8',
-                    'ebs':[{'size':'100','type':'standard','iops':100},
-                        {'size':'100','type':'standard','iops':100},
-                        {'size':'100','type':'standard','iops':100},
-                        {'size':'100','type':'standard','iops':100}
+                    'ebs':[{'size':100,'type':'standard','iops':100},
+                        {'size':100,'type':'standard','iops':100},
+                        {'size':100,'type':'standard','iops':100},
+                        {'size':100,'type':'standard','iops':100}
 
                     ],
                     'os':'os',
