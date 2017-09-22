@@ -276,7 +276,7 @@ def batch_operation():
         return jsonify(msg=msg['error']['message']), msg['error']['code']
 
 
-@instances.route('/servers/batch', methods=['GET'])
+@instances.route('/server/batch', methods=['GET'])
 def batch_info():
     try:
         auth = Auth()
