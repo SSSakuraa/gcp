@@ -291,7 +291,23 @@ if __name__=="__main__":
             pprint(command)
             res=commands.getoutput(command) 
             print(res)
-
+        
+        elif string=="state":
+            form_data={
+                    'client_id':credentials['client_id'],
+                    'client_secret':credentials['client_secret'],
+                    'refresh_token':credentials['refresh_token'],
+                    'project_id':'saintern-175510',
+                    'region_id':'us-west1',
+                    'region_name':'Oregon',
+                    'instance':'instance-3'
+                    }
+            url_data=urllib.urlencode(form_data)
+            url="http://"+ip+":5000/state?"+url_data
+            command = "curl '%s' -i  " % url
+            pprint(command)
+            res=commands.getoutput(command) 
+            print(res)
         else:
             print("error")
             
