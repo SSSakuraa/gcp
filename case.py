@@ -300,7 +300,8 @@ if __name__=="__main__":
                     'project_id':'saintern-175510',
                     'region_id':'us-west1',
                     'region_name':'Oregon',
-                    'instance':'instance-3'
+                    'instance':'instance-3',
+                    'zone':'a'
                     }
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/state?"+url_data
