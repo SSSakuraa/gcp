@@ -298,6 +298,27 @@ def instances_fee():
         return jsonify(msg=msg['error']['message']), msg['error']['code']
 
 
+@instances.route('/state', methods=['GET'])
+def instance_state():
+    try:
+        auth = Auth()
+        service = auth.get_service(request)
+        zone = auth.region + '-' + request.args.get('zone')
+        param = {
+            'project': auth.project,
+            'zone': zone,
+            'instance': request.args.get('instance'),
+            'service': service,
+        }
+        while True:
+            status = gcp_func("server_get", param)['state']
+            pprint(status)
+
+        return jsonify("res")
+    except errors.HttpError as e:
+        msg = json.loads(e.content)
+        return jsonify(msg=msg['error']['message']), msg['error']['code']
+
 # function interface for google API
 def gcp_func(func_name, param):
     service = param['service']
