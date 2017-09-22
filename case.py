@@ -237,7 +237,7 @@ if __name__=="__main__":
                     'zone':'a',
                     'dry_run':True,
                     'dst_inst_type':'n1-standard-8',
-                    'instances':"["instance-1","instance-2","dsfsdaf","papa"]
+                    'instances':["instance-1","instance-2","dsfsdaf","papa"]
                     }
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/servers/batch"
@@ -247,7 +247,7 @@ if __name__=="__main__":
             print(res)
 
         # instance batch info
-        elif string == "get/servers/batch":
+        elif string == "get/server/batch":
             form_data={
                     'client_id':credentials['client_id'],
                     'client_secret':credentials['client_secret'],
@@ -259,7 +259,7 @@ if __name__=="__main__":
                     'instances':['instance-1','instance-2','dsfsdaf','papa']
                     }
             url_data=urllib.urlencode(form_data)
-            url='http://'+ip+':5000/servers/batch?'+url_data
+            url='http://'+ip+':5000/server/batch?'+url_data
             command = "curl '%s' -i -X GET " % url
             pprint(command)
             res=commands.getoutput(command)
