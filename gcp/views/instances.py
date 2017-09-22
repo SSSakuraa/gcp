@@ -362,7 +362,6 @@ def gcp_func(func_name, param):
     project = param['project']
     zone = param['zone']
     instance = param['instance']
-    dry_run = param['dry_run']
 
     if func_name == "server_get":
         myrequest = service.instances().get(project=project, zone=zone, instance=instance)
@@ -380,7 +379,7 @@ def gcp_func(func_name, param):
         for interface in network_if:
             ip.append(interface['networkIP'])
         if 'accessConfigs' in network_if[0]:
-            eip = network_if[0]['accessConfigs']['natIP']
+            eip = network_if[0]['accessConfigs'][0]['natIP']
         else:
             eip = None
         res = {
