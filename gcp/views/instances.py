@@ -381,8 +381,8 @@ def gcp_func(func_name, param):
         if 'accessConfigs' in network_if[0]:
             if 'natIP' in network_if[0]['accessConfigs'][0]:
                 eip = network_if[0]['accessConfigs'][0]['natIP']
-        else:
-            eip = None
+            else:
+                eip = None
         res = {
             "id": myresponse["id"],
             "launch_time": myresponse["creationTimestamp"],
