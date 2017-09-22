@@ -95,61 +95,74 @@ def instance_operation(instance):
             'zone': zone,
             'instance': instance,
             'service': service,
-
         }
         if action == "server_off":
-            if data['dry_run']:
-                if gcp_func("server_get",param)['state'] =="stopped":
-                    return jsonify(msg="The server is already stopped.")
-                else:
-                    return jsonify(msg="The server is not stopped.")           
-            return jsonify(gcp_func("server_off", param))
+            res_get=gcp_func('server_get',param)
+            res={
+                'id':res_get['id'],
+                'state':res_get['state']
+            }
+            if not data['dry_run']:               
+                gcp_func("server_off", param)
+                res['state']=gcp_func('server_get',param)['state']
+            return jsonify(res)
 
         if action == 'server_on':
-            if data['dry_run']:
-                if gcp_func("server_get",param)['state'] =="running":
-                    return jsonify(msg="The server is already running.")
-                else:
-                    return jsonify(msg="The server is not running.")
-            return jsonify(gcp_func('server_on', param))
-
+            res_get=gcp_func('server_get',param)
+            res={
+                'id':res_get['id'],
+                'state':res_get['state']
+            }
+            if not data['dry_run']:               
+                gcp_func("server_on", param)
+                res['state']=gcp_func('server_get',param)['state']
+            return jsonify(res)
+        
+        # TODO : do not get after delete
         if action == 'server_delete':
-            if data['dry_run']:
-                if gcp_func("server_get",param)['state'] =="running":
-                    return jsonify(msg="The server is already in use.")
-                else:
-                    return jsonify(msg="The server is not running.")
-            return jsonify(gcp_func('server_delete', param))
+            res_get=gcp_func('server_get',param)
+            res={
+                'id':res_get['id'],
+                'state':res_get['state']
+            }
+            if not data['dry_run']:               
+                gcp_func("server_delete", param)
+                res['state']=gcp_func('server_get',param)['state']
+            return jsonify(res)
 
+        # TODO : while in reboot
         if action == 'server_reboot':
-            if data['dry_run']:
-                return jsonify(msg="The server is already %s." % gcp_func("server_get",param)['state'] )
-            return jsonify(gcp_func('server_reboot', param))
+            res_get=gcp_func('server_get',param)
+            res={
+                'id':res_get['id'],
+                'state':res_get['state']
+            }
+            if not data['dry_run']:   
+                gcp_func("server_reboot", param)            
+                res['state']=gcp_func('server_get',param)['state']
+            return jsonify(res)
 
         if action == 'server_modify':           
-            inst_info = gcp_func("server_get", param)          
-            origin_type = inst_info['instance_type']          
-
-            if data['dry_run']:
-                if data['dst_inst_type'] == origin_type:
-                    return jsonify(msg="The instance type is already %s" % origin_type)
-                return jsonify(msg="The current instance type is %s" % origin_type)
-            status = inst_info['state']
-            if status != 'stopped':
-                return jsonify(msg="The instance is not STOPPED!"), 409
-                      
-            machine_type = 'zones/' + zone + '/machineTypes/' + data['dst_inst_type']
-            body = {
-                'machineType': machine_type
-            }            
-            param['body'] = body
-            gcp_func("server_modify", param)
-            myresponse = gcp_func('server_get', param)
-            res = {
-                'id': myresponse['id'],
-                'origin_inst_type': origin_type,
-                'current_inst_type': myresponse['instance_type']
+            inst_info = gcp_func("server_get", param)                  
+            origin_type=inst_info['instance_type']
+            res={
+                'id':inst_info['id'],
+                'origin_inst_type':origin_type,
+                'current_inst_type':inst_info['instance_type']
             }
+            if not data['dry_run']:
+                status = inst_info['state']
+                if status != 'stopped':
+                    return jsonify(msg="The instance is not STOPPED!"), 409
+                      
+                machine_type = 'zones/' + zone + '/machineTypes/' + data['dst_inst_type']
+                body = {
+                    'machineType': machine_type
+                }            
+                param['body'] = body
+                gcp_func("server_modify", param)
+                myresponse = gcp_func('server_get', param)
+                res['current_inst_type']=gcp_func('server_get', param)['instance_type']
             return jsonify(res)
 
         # if action == 'server_rebind':
@@ -180,61 +193,82 @@ def batch_operation():
         batch_res = []
         for instance in instance_list:
             try:
-                print(instance)
                 param['instance'] = instance
-
                 if action == "server_off":
-                    res = gcp_func("server_off", param)
-                    batch_res.append(res)
-
-                elif action == "server_on":
-                    res = gcp_func("server_on", param)
-                    batch_res.append(res)
-
-                elif action == 'server_delete':
-                    res = gcp_func('server_delete', param)
-                    batch_res.append(res)
-
-                elif action == 'server_reboot':
-                    res = gcp_func('server_reboot', param)
-                    batch_res.append(res)
-
-                elif action == 'server_modify':
-                    inst_info = gcp_func("server_get", param)
-                    status = inst_info['state']
-                    origin_type = inst_info['instance_type']
-                    machine_type = 'zones/' + zone + \
-                        '/machineTypes/' + data['dst_inst_type']
-
-                    if status != 'stopped':
-                        res = {"msg": "The instance is not STOPPED!"}
-                        batch_res.append(res)
-                        continue
-                    body = {
-                        'machineType': machine_type
+                    res_get=gcp_func('server_get',param)
+                    res={
+                        'id':res_get['id'],
+                        'state':res_get['state']
                     }
-                    param['body'] = body
-                    gcp_func("server_modify", param)
+                    if not data['dry_run']:               
+                        gcp_func("server_off", param)
+                        res['state']=gcp_func('server_get',param)['state']
+                    batch_res.append(res)
 
-                    myresponse = gcp_func('server_get', param)
-
-                    res = {
-                        'id': myresponse['id'],
-                        'origin_inst_type': origin_type,
-                        'current_inst_type': myresponse['instance_type']
+                if action == 'server_on':
+                    res_get=gcp_func('server_get',param)
+                    res={
+                        'id':res_get['id'],
+                        'state':res_get['state']
                     }
+                    if not data['dry_run']:               
+                        gcp_func("server_on", param)
+                        res['state']=gcp_func('server_get',param)['state']
+                    batch_res.append(res)
+                
+                # TODO : do not get after delete
+                if action == 'server_delete':
+                    res_get=gcp_func('server_get',param)
+                    res={
+                        'id':res_get['id'],
+                        'state':res_get['state']
+                    }
+                    if not data['dry_run']:               
+                        gcp_func("server_delete", param)
+                        res['state']=gcp_func('server_get',param)['state']
                     batch_res.append(res)
 
-                elif action == 'server_rebind':
-                    res = {'error': "server_rebind not supported"}
-                    batch_res.append(res)
-                else:
-                    res = {'error': "operation " + action + " not found"}
+                # TODO : while in reboot
+                if action == 'server_reboot':
+                    res_get=gcp_func('server_get',param)
+                    res={
+                        'id':res_get['id'],
+                        'state':res_get['state']
+                    }
+                    if not data['dry_run']:   
+                        gcp_func("server_reboot", param)            
+                        res['state']=gcp_func('server_get',param)['state']
                     batch_res.append(res)
 
+                if action == 'server_modify':           
+                    inst_info = gcp_func("server_get", param)                  
+                    origin_type=inst_info['instance_type']
+                    res={
+                        'id':inst_info['id'],
+                        'origin_inst_type':origin_type,
+                        'current_inst_type':inst_info['instance_type']
+                    }
+                    if not data['dry_run']:
+                        status = inst_info['state']
+                        if status != 'stopped':
+                            return jsonify(msg="The instance is not STOPPED!"), 409
+                            
+                        machine_type = 'zones/' + zone + '/machineTypes/' + data['dst_inst_type']
+                        body = {
+                            'machineType': machine_type
+                        }            
+                        param['body'] = body
+                        gcp_func("server_modify", param)
+                        myresponse = gcp_func('server_get', param)
+                        res['current_inst_type']=gcp_func('server_get', param)['instance_type']
+                    batch_res.append(res)
+                
             except errors.HttpError as e:
+                msg = json.loads(e.content)
                 batch_res.append(
-                    {'error': json.loads(e.content)['error']['message']})
+                    {'msg': msg['error']['message'],
+                     'code': msg['error']['code']
+                     })
 
         return jsonify(res=batch_res, total=len(batch_res))
     except errors.HttpError as e:
@@ -261,8 +295,11 @@ def batch_info():
                 res = gcp_func("server_get", param)
                 batch_res.append(res)
             except errors.HttpError as e:
+                msg = json.loads(e.content)
                 batch_res.append(
-                    {'error': json.loads(e.content)['error']['message']})
+                    {'msg': msg['error']['message'],
+                     'code': msg['error']['code']
+                     })
         return jsonify(items=batch_res, total=len(batch_res))
     except errors.HttpError as e:
         msg = json.loads(e.content)
@@ -325,6 +362,7 @@ def gcp_func(func_name, param):
     project = param['project']
     zone = param['zone']
     instance = param['instance']
+    dry_run = param['dry_run']
 
     if func_name == "server_get":
         myrequest = service.instances().get(project=project, zone=zone, instance=instance)
@@ -332,22 +370,27 @@ def gcp_func(func_name, param):
         status = {
             'TERMINATED': 'stopped',
             'RUNNING': 'running',
-            'STOPPING': 'stopping'
+            'STOPPING': 'stopping',
+            'PROVISIONING': 'pending', # reserving resources for instance
+            'STAGING':'pending'  # preparing for launch
 
         }
-        access_config = myresponse["networkInterfaces"][0]["accessConfigs"][0]
-        if 'natIP' in access_config:
-            eip = access_config['natIP']
+        network_if=myresponse['networkInterfaces']
+        ip=[]
+        for interface in network_if:
+            ip.append(interface['networkIP'])
+        if 'accessConfigs' in network_if[0]:
+            eip = network_if[0]['accessConfigs']['natIP']
         else:
-            eip = ""
+            eip = None
         res = {
             "id": myresponse["id"],
             "launch_time": myresponse["creationTimestamp"],
-            "region": myresponse["zone"][myresponse["zone"].index("zones") + len("zones/"):len(myresponse['zone']) - 2],
-            "ip": myresponse["networkInterfaces"][0]["networkIP"],
-            "os": myresponse["disks"][0]["licenses"][0][myresponse["disks"][0]["licenses"][0].index("licenses/") + len("licenses/"):],
-            "image": myresponse["disks"][0]["licenses"][0],
-            "instance_type": myresponse["machineType"][myresponse["machineType"].index("machineTypes/") + len("machineTypes/"):],
+            "region": myresponse["zone"].split('/zones/')[1],
+            "ip": ip,
+            "os": myresponse["disks"][0]["licenses"][0].split('/licenses/')[1], 
+            "image": myresponse["disks"][0]["licenses"][0].split('/licenses/')[1], # TODO  search the disk info in disks
+            "instance_type": myresponse["machineType"].split('/machineTypes/')[1],
             "eip": eip,
             "status_check": "",  # TODO
             "state": status[myresponse["status"]]
@@ -359,50 +402,33 @@ def gcp_func(func_name, param):
         myrequest = service.instances().stop(
             project=project, zone=zone, instance=instance)
         myresponse = myrequest.execute()
-        res = {
-            'id': myresponse['id'],
-            'state': myresponse['status']
-        }
-        return res
+        return
 
-    if func_name == 'server_on':
+    elif func_name == 'server_on':
         myrequest = service.instances().start(
             project=project, zone=zone, instance=instance)
         myresponse = myrequest.execute()
-        res = {
-            'id': myresponse['id'],
-            'state': myresponse['status']
-        }
-        return res
+        return
 
-    if func_name == "server_delete":
+    elif func_name == "server_delete":
         myrequest = service.instances().delete(
             project=project, zone=zone, instance=instance)
         myresponse = myrequest.execute()
-        res = {
-            'id': myresponse['id'],
-            'state': myresponse['status']
-        }
-        return res
+        return
 
-    if func_name == "server_modify":
+    elif func_name == "server_modify":
         myrequest = service.instances().setMachineType(
             project=project, zone=zone, instance=instance, body=param['body'])
         myresponse = myrequest.execute()
-        pprint(myresponse)
-        res = {
-            'id': myresponse['id'],
-            'state': myresponse['status']
-        }
-        return res
+        return
 
-    if func_name == "server_reboot":
+    elif func_name == "server_reboot":
         gcp_func("server_off", param)
         inst_info = gcp_func("server_get", param)
         status = inst_info['state']
         while status != 'stopped':
             status = gcp_func("server_get", param)['state']
-        res = gcp_func("server_on", param)
-        return res
+        gcp_func("server_on", param)
+        return
 
     return
