@@ -59,3 +59,29 @@ def gcp_network_func(func_name,param):
                 pprint(network)
             myrequest = service.networks().list_next(previous_request=myrequest, previous_response=myresponse)
         return network_list
+
+    if func_name == "find_network":
+        network_list=gcp_network_func("vpc_list",param)
+        for network in network_list:
+            if network['id']==param['vpc_id']:
+                return network
+        return None
+
+    if func_name == 'subnet_list':
+        myrequest = service.subnetworks().list(project=project, region=param['region'])
+        subnetwork_list=[]
+        while myrequest is not None:
+            myresponse = myrequest.execute()
+
+            for subnetwork in myresponse['items']:
+                # TODO: Change code below to process each `subnetwork` resource:
+                subnetwork_list.append(subnetwork)
+            myrequest = service.subnetworks().list_next(previous_request=myrequest, previous_response=myresponse)
+        return subnetwork_list
+
+    if func_name == "find_subnetwork":
+        subnetwork_list=gcp_network_func("subnet_list",param)
+        for subnetwork in network_list:
+            if subnetwork['ipCidrRange']==param['subnet_cidr']:
+                return subnetwork
+        return None

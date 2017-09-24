@@ -40,48 +40,46 @@ def instance_create():
         service = auth.post_service(request)
         data = json.loads(request.get_data())
         zone = auth.region + '-' + data['zone']
-        action = data['action']
         param = {
             'project': auth.project,
             'zone': zone,
-            'instance': instance,
             'service': service,
+            'vpc_id':data['vpc_id'],
+            'subnet_cidr':data['subnet_cidr']
         }
+        network=gcp_network_func("find_network",param)
+        if data['subnet_cidr'] != None and data['subnet_cidr'] !="":
+            subnet_cidr=gcp_network_func("find_subnetwork",param)
         zone = auth.region + '-' + data['zone']
+        access_configs=[]
+        if data['eip_enable'] == 1:
+            access_configs.append({})
         instance_body = {
             # TODO: Add desired entries to the request body.
-            "machineType": "zones/us-west1-a/machineTypes/n1-standard-2",
+            "machineType": "zones/"+zone+"/machineTypes/"+data['instance_type'],
             "name": name,
-
             "networkInterfaces": [
                 {
-                    "name": "nic0",
-                    "network": "projects/saintern-175510/global/networks/default",
-                    "accessConfigs": [
-                            {
-                                "name": "External NAT"
-                            }
-                    ]
+                    "network": "projects/"+auth.project+"/global/networks/"+network['name'],
+                    "accessConfigs": access_configs
                 }
             ],
             "disks": [
                 {
-                    "deviceName": name,
                     "boot": "true",
                     "autoDelete": "true",
                     "initializeParams": {
-                            "diskName": name,
-                            "sourceImage": "projects/debian-cloud/global/images/debian-9-stretch-v20170829"
+                        "sourceImage":data['image']
                     }
                 }
-            ]
+            ],
+            "labels":data['tags']
         }
-        res=gcp_network_func("vpc_list",param)
-#        myrequest = service.instances().insert(
-#            project=auth.project, zone=zone, body=instance_body)
-#        myresponse = myrequest.execute()
-#        pprint(myresponse)
-        return jsonify(res)
+        myrequest = service.instances().insert(
+            project=auth.project, zone=zone, body=instance_body)
+        myresponse = myrequest.execute()
+        pprint(myresponse)
+        return jsonify(myresponse)
     except errors.HttpError as e:
         msg = json.loads(e.content)
         return jsonify(msg=msg['error']['message']), msg['error']['code']
