@@ -56,7 +56,6 @@ def gcp_network_func(func_name,param):
         
             for network in myresponse['items']:
                 network_list.append(network)
-                pprint(network)
             myrequest = service.networks().list_next(previous_request=myrequest, previous_response=myresponse)
         return network_list
 
