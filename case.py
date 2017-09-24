@@ -74,17 +74,16 @@ if __name__=="__main__":
                     'client_id':credentials['client_id'],
                     'client_secret':credentials['client_secret'],
                     'refresh_token':credentials['refresh_token'],
-                    'project_id':'saintern-17551',
+                    'project_id':'saintern-175510',
                     'vpc_id':'155979844223948781', # only vpc_id can identify the vpc.
                     'vpc_cidr':'10.240.0.0/16', # vpc with subnets has no vpc_cidr
                     'zone':'a',
-                    # it is no use while vpc_id is valid
+
                     'is_common':0,  # 0 means vpc for project, 1 means global vpc   
                     'subnet_cidr':'',
                     'cost_center':'', # not used in gcp
                     'region_name':'Oregon',
                     'region_id':'us-west1',
-                    'name':'name',
                     'instance_type': 'n1-standard-2',
                     'ebs':[{'size':100,'type':'standard','iops':100},
                         {'size':100,'type':'standard','iops':100},
