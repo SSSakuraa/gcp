@@ -76,7 +76,7 @@ class Fee(object):
         for tr in tr_list:
             if "Standard provisioned space" in tr:
                 standard_price={}
-                price_dict['standard']=standard_price
+                price_dict['HDD']=standard_price
                 td_list=re.split('\n',tr)
                 for price in td_list:
                     if '-monthly=' in price:
@@ -84,7 +84,7 @@ class Fee(object):
                         standard_price[city_dict[price[0]]]=float(price[1][1:])
             elif "<td>SSD provisioned space</td>" in tr:
                 ssd_price={}
-                price_dict['ssd']=ssd_price
+                price_dict['SSD']=ssd_price
                 td_list=re.split('\n',tr)
                 for price in td_list:
                     if '-monthly=' in price:

@@ -33,9 +33,6 @@ def instance_getinfo(instance):
 @instances.route('/servers', methods=['POST'])
 def instance_create():
     try:
-        import rstr
-        name = rstr.xeger('[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?')
-        pprint(name)
         auth = Auth()
         service = auth.post_service(request)
         data = json.loads(request.get_data())
@@ -53,33 +50,48 @@ def instance_create():
         zone = auth.region + '-' + data['zone']
         access_configs=[]
         if data['eip_enable'] == 1:
-            access_configs.append({})
-        instance_body = {
-            # TODO: Add desired entries to the request body.
-            "machineType": "zones/"+zone+"/machineTypes/"+data['instance_type'],
-            "name": name,
-            "networkInterfaces": [
-                {
-                    "network": "projects/"+auth.project+"/global/networks/"+network['name'],
-                    "accessConfigs": access_configs
+            access_configs.append({})    
+
+        disks=[]
+        ebs=data['ebs']
+        for disk in ebs:
+            disks.append({
+                "initializeParams": {
+                    "diskSizeGb": disk['size'],
+                    "diskStorageType": disk['type'],
+                }})
+        quantity=data['quantity']
+        batch_res=[]
+        import rstr
+        while quantity>0:
+            try:
+                quantity=quantity-1
+                name = rstr.xeger('[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?')
+                pprint(name)
+                instance_body = {
+                    # TODO: Add desired entries to the request body.
+                    "machineType": "zones/"+zone+"/machineTypes/"+data['instance_type'],
+                    "name": name,
+                    "networkInterfaces": [
+                        {
+                            "network": "projects/"+auth.project+"/global/networks/"+network['name'],
+                            "accessConfigs": access_configs
+                        }
+                    ],
+                    "disks":disks,
+                    "labels":data['tags']
                 }
-            ],
-            "disks": [
-                {
-                    "boot": "true",
-                    "autoDelete": "true",
-                    "initializeParams": {
-                        "sourceImage":data['image']
-                    }
-                }
-            ],
-            "labels":data['tags']
-        }
-        myrequest = service.instances().insert(
-            project=auth.project, zone=zone, body=instance_body)
-        myresponse = myrequest.execute()
-        pprint(myresponse)
-        return jsonify(myresponse)
+                myrequest = service.instances().insert(
+                    project=auth.project, zone=zone, body=instance_body)
+                myresponse = myrequest.execute()
+                batch_res.append(myresponse)
+            except errors.HttpError as e:
+                msg = json.loads(e.content)
+                batch_res.append(
+                    {'msg': msg['error']['message'],
+                     'code': msg['error']['code']
+                     })
+        return jsonify(items=batch_res,total=len(batch_res))
     except errors.HttpError as e:
         msg = json.loads(e.content)
         return jsonify(msg=msg['error']['message']), msg['error']['code']
