@@ -5,7 +5,7 @@ from flask import request
 from auth import Auth
 from regions import Region
 import json
-
+from networks import gcp_network_func
 from googleapiclient import errors
 
 instances = Blueprint('instances', __name__)
@@ -24,7 +24,7 @@ def instance_getinfo(instance):
             'service': service,
         }
 
-        return jsonify(gcp_func("server_get", param))
+        return jsonify(gcp_instance_func("server_get", param))
     except errors.HttpError as e:
         msg = json.loads(e.content)
         return jsonify(msg=msg['error']['message']), msg['error']['code']
@@ -35,11 +35,19 @@ def instance_create():
     try:
         import rstr
         name = rstr.xeger('[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?')
-
+        pprint(name)
         auth = Auth()
         service = auth.post_service(request)
         data = json.loads(request.get_data())
-        name = data['name']
+        zone = auth.region + '-' + data['zone']
+        action = data['action']
+        param = {
+            'project': auth.project,
+            'zone': zone,
+            'instance': instance,
+            'service': service,
+        }
+        zone = auth.region + '-' + data['zone']
         instance_body = {
             # TODO: Add desired entries to the request body.
             "machineType": "zones/us-west1-a/machineTypes/n1-standard-2",
@@ -68,16 +76,15 @@ def instance_create():
                 }
             ]
         }
-        pprint(auth.project)
-        myrequest = service.instances().insert(
-            project=auth.project, zone=auth.zone, body=instance_body)
-        myresponse = myrequest.execute()
-        pprint(myresponse)
-        res = json.dumps(myresponse, indent=4)
-        return res
+        res=gcp_network_func("vpc_list",param)
+#        myrequest = service.instances().insert(
+#            project=auth.project, zone=zone, body=instance_body)
+#        myresponse = myrequest.execute()
+#        pprint(myresponse)
+        return jsonify(res)
     except errors.HttpError as e:
         msg = json.loads(e.content)
-        return jsonify(msg=msg), msg['error']['code']
+        return jsonify(msg=msg['error']['message']), msg['error']['code']
 
 
 
@@ -97,53 +104,53 @@ def instance_operation(instance):
             'service': service,
         }
         if action == "server_off":
-            res_get=gcp_func('server_get',param)
+            res_get=gcp_instance_func('server_get',param)
             res={
                 'id':res_get['id'],
                 'state':res_get['state']
             }
             if not data['dry_run']:               
-                gcp_func("server_off", param)
-                res['state']=gcp_func('server_get',param)['state']
+                gcp_instance_func("server_off", param)
+                res['state']=gcp_instance_func('server_get',param)['state']
             return jsonify(res)
 
         if action == 'server_on':
-            res_get=gcp_func('server_get',param)
+            res_get=gcp_instance_func('server_get',param)
             res={
                 'id':res_get['id'],
                 'state':res_get['state']
             }
             if not data['dry_run']:               
-                gcp_func("server_on", param)
-                res['state']=gcp_func('server_get',param)['state']
+                gcp_instance_func("server_on", param)
+                res['state']=gcp_instance_func('server_get',param)['state']
             return jsonify(res)
         
         # TODO : do not get after delete
         if action == 'server_delete':
-            res_get=gcp_func('server_get',param)
+            res_get=gcp_instance_func('server_get',param)
             res={
                 'id':res_get['id'],
                 'state':res_get['state']
             }
             if not data['dry_run']:               
-                gcp_func("server_delete", param)
-                res['state']=gcp_func('server_get',param)['state']
+                gcp_instance_func("server_delete", param)
+                res['state']=gcp_instance_func('server_get',param)['state']
             return jsonify(res)
 
         # TODO : while in reboot
         if action == 'server_reboot':
-            res_get=gcp_func('server_get',param)
+            res_get=gcp_instance_func('server_get',param)
             res={
                 'id':res_get['id'],
                 'state':res_get['state']
             }
             if not data['dry_run']:   
-                gcp_func("server_reboot", param)            
-                res['state']=gcp_func('server_get',param)['state']
+                gcp_instance_func("server_reboot", param)            
+                res['state']=gcp_instance_func('server_get',param)['state']
             return jsonify(res)
 
         if action == 'server_modify':           
-            inst_info = gcp_func("server_get", param)                  
+            inst_info = gcp_instance_func("server_get", param)                  
             origin_type=inst_info['instance_type']
             res={
                 'id':inst_info['id'],
@@ -160,9 +167,9 @@ def instance_operation(instance):
                     'machineType': machine_type
                 }            
                 param['body'] = body
-                gcp_func("server_modify", param)
-                myresponse = gcp_func('server_get', param)
-                res['current_inst_type']=gcp_func('server_get', param)['instance_type']
+                gcp_instance_func("server_modify", param)
+                myresponse = gcp_instance_func('server_get', param)
+                res['current_inst_type']=gcp_instance_func('server_get', param)['instance_type']
             return jsonify(res)
 
         # if action == 'server_rebind':
@@ -175,7 +182,7 @@ def instance_operation(instance):
         return jsonify(msg=msg['error']['message']), msg['error']['code']
 
 # servers batch operations
-@instances.route('/servers/batch', methods=['POST'])
+@instances.route('/server/batch', methods=['POST'])
 def batch_operation():
     try:
         auth = Auth()
@@ -195,53 +202,53 @@ def batch_operation():
             try:
                 param['instance'] = instance
                 if action == "server_off":
-                    res_get=gcp_func('server_get',param)
+                    res_get=gcp_instance_func('server_get',param)
                     res={
                         'id':res_get['id'],
                         'state':res_get['state']
                     }
                     if not data['dry_run']:               
-                        gcp_func("server_off", param)
-                        res['state']=gcp_func('server_get',param)['state']
+                        gcp_instance_func("server_off", param)
+                        res['state']=gcp_instance_func('server_get',param)['state']
                     batch_res.append(res)
 
                 if action == 'server_on':
-                    res_get=gcp_func('server_get',param)
+                    res_get=gcp_instance_func('server_get',param)
                     res={
                         'id':res_get['id'],
                         'state':res_get['state']
                     }
                     if not data['dry_run']:               
-                        gcp_func("server_on", param)
-                        res['state']=gcp_func('server_get',param)['state']
+                        gcp_instance_func("server_on", param)
+                        res['state']=gcp_instance_func('server_get',param)['state']
                     batch_res.append(res)
                 
                 # TODO : do not get after delete
                 if action == 'server_delete':
-                    res_get=gcp_func('server_get',param)
+                    res_get=gcp_instance_func('server_get',param)
                     res={
                         'id':res_get['id'],
                         'state':res_get['state']
                     }
                     if not data['dry_run']:               
-                        gcp_func("server_delete", param)
-                        res['state']=gcp_func('server_get',param)['state']
+                        gcp_instance_func("server_delete", param)
+                        res['state']=gcp_instance_func('server_get',param)['state']
                     batch_res.append(res)
 
                 # TODO : while in reboot
                 if action == 'server_reboot':
-                    res_get=gcp_func('server_get',param)
+                    res_get=gcp_instance_func('server_get',param)
                     res={
                         'id':res_get['id'],
                         'state':res_get['state']
                     }
                     if not data['dry_run']:   
-                        gcp_func("server_reboot", param)            
-                        res['state']=gcp_func('server_get',param)['state']
+                        gcp_instance_func("server_reboot", param)            
+                        res['state']=gcp_instance_func('server_get',param)['state']
                     batch_res.append(res)
 
                 if action == 'server_modify':           
-                    inst_info = gcp_func("server_get", param)                  
+                    inst_info = gcp_instance_func("server_get", param)                  
                     origin_type=inst_info['instance_type']
                     res={
                         'id':inst_info['id'],
@@ -258,9 +265,9 @@ def batch_operation():
                             'machineType': machine_type
                         }            
                         param['body'] = body
-                        gcp_func("server_modify", param)
-                        myresponse = gcp_func('server_get', param)
-                        res['current_inst_type']=gcp_func('server_get', param)['instance_type']
+                        gcp_instance_func("server_modify", param)
+                        myresponse = gcp_instance_func('server_get', param)
+                        res['current_inst_type']=gcp_instance_func('server_get', param)['instance_type']
                     batch_res.append(res)
                 
             except errors.HttpError as e:
@@ -292,7 +299,7 @@ def batch_info():
         for instance in instance_list:
             try:
                 param['instance'] = instance
-                res = gcp_func("server_get", param)
+                res = gcp_instance_func("server_get", param)
                 batch_res.append(res)
             except errors.HttpError as e:
                 msg = json.loads(e.content)
@@ -348,7 +355,7 @@ def instance_state():
             'service': service,
         }
         while True:
-            status = gcp_func("server_get", param)['state']
+            status = gcp_instance_func("server_get", param)['state']
             pprint(status)
 
         return jsonify("res")
@@ -357,7 +364,7 @@ def instance_state():
         return jsonify(msg=msg['error']['message']), msg['error']['code']
 
 # function interface for google API
-def gcp_func(func_name, param):
+def gcp_instance_func(func_name, param):
     service = param['service']
     project = param['project']
     zone = param['zone']
@@ -422,12 +429,12 @@ def gcp_func(func_name, param):
         return
 
     elif func_name == "server_reboot":
-        gcp_func("server_off", param)
-        inst_info = gcp_func("server_get", param)
+        gcp_instance_func("server_off", param)
+        inst_info = gcp_instance_func("server_get", param)
         status = inst_info['state']
         while status != 'stopped':
-            status = gcp_func("server_get", param)['state']
-        gcp_func("server_on", param)
+            status = gcp_instance_func("server_get", param)['state']
+        gcp_instance_func("server_on", param)
         return
 
     return
