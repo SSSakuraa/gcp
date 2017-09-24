@@ -61,6 +61,7 @@ def instance_create():
         }]
         ebs=data['ebs']
         for disk in ebs:
+            ###### bug here! create disks first.
             disks.append({
                 "initializeParams": {
                     "diskSizeGb": disk['size'],
