@@ -52,7 +52,13 @@ def instance_create():
         if data['eip_enable'] == 1:
             access_configs.append({})    
 
-        disks=[]
+        disks=[{
+            "boot": "true",
+            "autoDelete": "true",
+            "initializeParams": {
+                "sourceImage":data['image']
+            }
+        }]
         ebs=data['ebs']
         for disk in ebs:
             disks.append({
