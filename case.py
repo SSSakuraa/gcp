@@ -101,7 +101,7 @@ if __name__=="__main__":
                     'dry_run':False,
                     'os':'debian-9-stretch',
                     'quantity':2,
-                    'tags':{'key':'value'},
+                    'tags':{'key':'value','key2':'value2'},
                     'private_ips':[]
                     }
 
