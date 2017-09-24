@@ -85,10 +85,10 @@ if __name__=="__main__":
                     'region_name':'Oregon',
                     'region_id':'us-west1',
                     'instance_type': 'n1-standard-2',
-                    'ebs':[{'size':100,'type':'standard','iops':100},
-                        {'size':100,'type':'standard','iops':100},
-                        {'size':100,'type':'standard','iops':100},
-                        {'size':100,'type':'standard','iops':100}
+                    'ebs':[{'size':100,'type':'HDD','iops':100},
+                        {'size':100,'type':'HDD','iops':100},
+                        {'size':100,'type':'HDD','iops':100},
+                        {'size':100,'type':'HDD','iops':100}
 
                     ],
                     'image':'projects/debian-cloud/global/images/debian-9-stretch-v20170829',
