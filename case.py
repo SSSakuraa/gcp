@@ -69,23 +69,72 @@ if __name__=="__main__":
 
         # create instance
         # TODO
-        elif string == 'post/servers':
+        elif string == 'post/servers1':
             form_data={
                     'client_id':credentials['client_id'],
                     'client_secret':credentials['client_secret'],
                     'refresh_token':credentials['refresh_token'],
-                    'project_id':'saintern-17551',  # project_code in doc
-                    'vpc_cidr':'', # not used in gcp networks with subnetworks
-                    'vpc_id':'',
-                    'zone':'us-west1-a',
+                    'project_id':'saintern-17551',
+                    'vpc_id':'155979844223948781', # only vpc_id can identify the vpc.
+                    'vpc_cidr':'10.240.0.0/16', # vpc with subnets has no vpc_cidr
+                    'zone':'a',
                     # it is no use while vpc_id is valid
                     'is_common':0,  # 0 means vpc for project, 1 means global vpc   
                     'subnet_cidr':'',
                     'cost_center':'', # not used in gcp
                     'region_name':'Oregon',
-                    'region_id':'',
+                    'region_id':'us-west1',
                     'name':'name',
+                    'instance_type': 'n1-standard-2',
+                    'ebs':[{'size':100,'type':'standard','iops':100},
+                        {'size':100,'type':'standard','iops':100},
+                        {'size':100,'type':'standard','iops':100},
+                        {'size':100,'type':'standard','iops':100}
+
+                    ],
+                    'image':'projects/debian-cloud/global/images/debian-9-stretch-v20170829',
+                    'server_type':'gameaudit', # miao???
+                    'sg_name':'game-sg', # not used in gcp
+                    'sg_rules':[], # not used in gcp
+                    'iam_role':'', # not used in gcp
+                    'eip_enable':1, # 0:disable; 1:enable
+                    'userdata':'', # miao???
+                    'dry_run':False,
+                    'os':'debian-9-stretch',
+                    'quantity':2,
+                    'tags':{'key':'value'},
+                    'private_ips':[]
                     }
+
+#            instance_id="instance-1"
+            url_data=urllib.urlencode(form_data)
+            url="http://"+ip+":5000/servers"
+            command = "curl '%s' -i -d '%s' -X POST " % (url, json.dumps(form_data))
+            pprint(command)
+            res=commands.getoutput(command) 
+            print(res)
+        
+
+        elif string == 'post/servers2':
+            form_data={
+                'client_id':credentials['client_id'],
+                'client_secret':credentials['client_secret'],
+                'refresh_token':credentials['refresh_token'],
+                'project_id':'saintern-17551',
+                'region_name':'Oregon',
+                'region_id':'us-west1',
+                'zone':'a',
+                'vpc_cidr':'10.240.0.0/16', # vpc without subnets can have cidr
+                'vpc_id':'155979844223948781',
+                # it is no use while vpc_id is valid
+                'is_common':0,  # 0:vpc for project; 1:global vpc. gcp has no global vpc. 
+                'subnet_cidr':'',
+                'cost_center':'', # not used in gcp
+                'instance_type': 'n1-standard-2',
+                'ebs_encrypt':0, # not used in gcp
+
+
+                }
 #            instance_id="instance-1"
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/servers"
@@ -225,7 +274,7 @@ if __name__=="__main__":
             print(res)
 
         # instance batch operations
-        elif string == "post/servers/batch":
+        elif string == "post/server/batch":
             form_data={
                     'client_id':credentials['client_id'],
                     'client_secret':credentials['client_secret'],
@@ -240,7 +289,7 @@ if __name__=="__main__":
                     'instances':["instance-1","instance-2","dsfsdaf","papa"]
                     }
             url_data=urllib.urlencode(form_data)
-            url="http://"+ip+":5000/servers/batch"
+            url="http://"+ip+":5000/server/batch"
             command = "curl '%s' -i -X POST -d '%s' " % (url,json.dumps(form_data))
             pprint(command)
             res=commands.getoutput(command)
