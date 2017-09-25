@@ -141,6 +141,11 @@ def instance_create():
                 param['instance']=name
                 while True:
                     instance_info=gcp_instance_func('server_get',param)
+                    if instance_info['ip']!=[]:
+                        if data['eip_enable'] == 1 and instance_info['eip']!="":
+                            break;
+                        if data['eip_enable']==0:
+                            break;
 
                 res={
                     'status':'success',
