@@ -114,7 +114,7 @@ def instance_create():
                             'disk_name':disk_name
                             }
                         while True:
-                            if gcp_disk_func("disk_info",param)['status']=='READY':
+                            if gcp_disk_func("disk_info",disk_param)['status']=='READY':
                                 break
                             
                         disks.append({
