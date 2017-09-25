@@ -118,7 +118,7 @@ def instance_create():
                                 break
                             
                         disks.append({
-                            'source':"/projects/"+auth.project+"/zones/"+zone+"/disks/"+disk_name
+                            'source':"/projects/"+auth.project+"/zones/"+zone+"/disks/"+disk['disk_name']
                             })
                 
 
@@ -139,7 +139,9 @@ def instance_create():
                     project=auth.project, zone=zone, body=instance_body)
                 myrequest.execute()
                 param['instance']=name
-                instance_info=gcp_instance_func('server_get',param)
+                while True:
+                    instance_info=gcp_instance_func('server_get',param)
+
                 res={
                     'status':'success',
                     'msg':msg,
@@ -474,7 +476,8 @@ def gcp_instance_func(func_name, param):
         ip=[]
         eip=""
         for interface in network_if:
-            ip.append(interface['networkIP'])
+            if 'ip' in interface:
+                ip.append(interface['networkIP'])            
         if 'accessConfigs' in network_if[0]:
             if 'natIP' in network_if[0]['accessConfigs'][0]:
                 eip = network_if[0]['accessConfigs'][0]['natIP']
