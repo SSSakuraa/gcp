@@ -6,6 +6,7 @@ from auth import Auth
 from regions import Region
 import json
 from networks import gcp_network_func
+from disks import gcp_disk_func
 from googleapiclient import errors
 
 instances = Blueprint('instances', __name__)
@@ -52,22 +53,37 @@ def instance_create():
         if data['eip_enable'] == 1:
             access_configs.append({})    
 
-        disks=[{
+        disks=[]
+        ebs=data['ebs']
+        {
             "boot": "true",
             "autoDelete": "true",
             "initializeParams": {
-                "sourceImage":data['image']
+                "sourceImage":data['image'],
+                "diskSizeGb": "20",
+                "diskStorageType": "HDD"
             }
-        }]
-        ebs=data['ebs']
+        }
         for disk in ebs:
             ###### bug here! create disks first.
-            disks.append({
-                "initializeParams": {
-                    "diskSizeGb": disk['size'],
-                    "diskStorageType": disk['type'],
-                }})
-        quantity=data['quantity']
+            if disks == []:
+                disks.append({
+                    "boot": "true",
+                    "autoDelete": "true",
+                    "initializeParams": {
+                        "sourceImage": data['image'],
+                        "diskSizeGb": disk['size'],
+                        "diskStorageType": disk['type']
+                    }
+                })
+            else:
+                param['sizeGb']=disk['size']
+                param['storageType']=disk['type']
+                disk_name=gcp_disk_func("disk_insert",param)['name']
+                disks.append({
+                    'source':"/projects/"+auth.project+"/zones/"+zone+"/disks/"+disk_name
+                    })
+        quantity = data['quantity']
         batch_res=[]
         import rstr
         while quantity>0:
