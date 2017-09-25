@@ -103,6 +103,7 @@ def instance_create():
                             }
                         })
                 instance_disk=disks_info[index]
+                index=index+1
                 for disk in instance_disk:
                     if 'error' in disk:
                         msg.append('error while creating disk for '+name+': '+disk['error'])
