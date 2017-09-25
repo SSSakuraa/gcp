@@ -30,6 +30,6 @@ def gcp_disk_func(func_name, param):
         res={
             'id':myresponse['targetId'],
             'status':myresponse['status'],
-            'name':myresponse['targetLink'].split('disks')[1],
+            'name':myresponse['targetLink'].split('/disks/')[1],
         }
         return res
