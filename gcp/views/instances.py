@@ -70,7 +70,7 @@ def instance_create():
                     'storageType':disk['type']
                     }    
                 try:
-                    index=index+1                          
+                    index=index+1                         
                     disk_name=gcp_disk_func("disk_insert",disk_param)['name']
                     instance_disk.append({'disk_name':disk_name})
                 except errors.HttpError as e:
@@ -111,10 +111,10 @@ def instance_create():
                             'project': auth.project,
                             'zone': zone,
                             'service': service,
-                            'disk_name':disk_name
+                            'disk_name':disk['disk_name']
                             }
                         while True:
-                            if gcp_disk_func("disk_info",disk_param)['status']=='READY':
+                            if gcp_disk_func("disk_info",disk_param)['status']=='READY':  
                                 break
                             
                         disks.append({
