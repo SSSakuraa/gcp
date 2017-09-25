@@ -53,35 +53,75 @@ def instance_create():
         if data['eip_enable'] == 1:
             access_configs.append({})    
 
-        disks=[]
-        ebs=data['ebs']
-        for disk in ebs:
-            ###### bug here! create disks first.
-            if disks == []:
-                disks.append({
-                    "boot": "true",
-                    "autoDelete": "true",
-                    "initializeParams": {
-                        "sourceImage": data['image'],
-                        "diskSizeGb": disk['size'],
-                        "diskStorageType": disk['type']
-                    }
-                })
-            else:
-                param['sizeGb']=disk['size']
-                param['storageType']=disk['type']
-                disk_name=gcp_disk_func("disk_insert",param)['name']
-                disks.append({
-                    'source':"/projects/"+auth.project+"/zones/"+zone+"/disks/"+disk_name
-                    })
-        quantity = data['quantity']
         batch_res=[]
-        import rstr
+        quantity = data['quantity']
+        disks_info=[]
+        ebs=data['ebs']
         while quantity>0:
+            quantity=quantity-1
+            instance_disk=[]
+            index=0
+            for disk in ebs:
+                disk_param={
+                    'project': auth.project,
+                    'zone': zone,
+                    'service': service,
+                    'sizeGb':disk['size'],
+                    'storageType':disk['type']
+                    }    
+                try:
+                    index=index+1                          
+                    disk_name=gcp_disk_func("disk_insert",disk_param)['name']
+                    instance_disk.append({'disk_name':disk_name})
+                except errors.HttpError as e:
+                    instance_disk.append({
+                        'error':json.loads(e.content)['error']['message'],
+                        'disk_name':disk_name,
+                        'disk_index':index})
+            disks_info.append(instance_disk) 
+
+        quantity = data['quantity']
+        index=0
+        while index < quantity:
             try:
-                quantity=quantity-1
-                name = rstr.xeger('[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?')
+                import rstr
+                instance_list=gcp_instance_func("server_list",param)
+                while True:
+                    name = rstr.xeger('[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?')
+                    if name not in instance_list:
+                        break
                 pprint(name)
+
+                # create disks for each instance
+                disks=[]
+                msg=[]
+                disks.append({
+                            "boot": "true",
+                            "autoDelete": "true",
+                            "initializeParams": {
+                                "sourceImage": data['image'],
+                            }
+                        })
+                instance_disk=disks_info[index]
+                for disk in instance_disk:
+                    if 'error' in disk:
+                        msg.append('error while creating disk for '+name+': '+disk['error'])
+                    else:
+                        disk_param={
+                            'project': auth.project,
+                            'zone': zone,
+                            'service': service,
+                            'name':disk_name
+                            }
+                        while True:
+                            if gcp_disk_func("disk_info",param)['status']=='READY':
+                                break
+                            
+                        disks.append({
+                            'source':"/projects/"+auth.project+"/zones/"+zone+"/disks/"+disk_name
+                            })
+                
+
                 instance_body = {
                     # TODO: Add desired entries to the request body.
                     "machineType": "zones/"+zone+"/machineTypes/"+data['instance_type'],
@@ -97,8 +137,19 @@ def instance_create():
                 }
                 myrequest = service.instances().insert(
                     project=auth.project, zone=zone, body=instance_body)
-                myresponse = myrequest.execute()
-                batch_res.append(myresponse)
+                myrequest.execute()
+                param['instance']=name
+                instance_info=gcp_instance_func('server_get',param)
+                res={
+                    'status':'success',
+                    'msg':msg,
+                    'ip':instance_info['ip'],
+                    'id':instance_info['id'],
+                    'name':name,
+                    'eip':instance_info['eip'],
+                    'launch_time':instance_info['launch_time']
+                }
+                batch_res.append(res)
             except errors.HttpError as e:
                 msg = json.loads(e.content)
                 batch_res.append(
@@ -392,9 +443,23 @@ def gcp_instance_func(func_name, param):
     service = param['service']
     project = param['project']
     zone = param['zone']
-    instance = param['instance']
+    
+    if func_name == "server_list":
+        instance_list=[]
+        myrequest = service.instances().list(project=project, zone=zone)
+        while myrequest is not None:
+            myresponse = myrequest.execute()
+
+            for instance in myresponse['items']:
+                # TODO: Change code below to process each `subnetwork` resource:
+                instance_list.append(instance['name'])
+            myrequest = service.instances().list_next(previous_request=myrequest, previous_response=myresponse)
+        return instance_list
+
+
 
     if func_name == "server_get":
+        instance = param['instance']
         myrequest = service.instances().get(project=project, zone=zone, instance=instance)
         myresponse = myrequest.execute()
         status = {
@@ -429,30 +494,35 @@ def gcp_instance_func(func_name, param):
         return res
 
     if func_name == "server_off":
+        instance = param['instance']
         myrequest = service.instances().stop(
             project=project, zone=zone, instance=instance)
         myresponse = myrequest.execute()
         return
 
     elif func_name == 'server_on':
+        instance = param['instance']
         myrequest = service.instances().start(
             project=project, zone=zone, instance=instance)
         myresponse = myrequest.execute()
         return
 
     elif func_name == "server_delete":
+        instance = param['instance']
         myrequest = service.instances().delete(
             project=project, zone=zone, instance=instance)
         myresponse = myrequest.execute()
         return
 
     elif func_name == "server_modify":
+        instance = param['instance']
         myrequest = service.instances().setMachineType(
             project=project, zone=zone, instance=instance, body=param['body'])
         myresponse = myrequest.execute()
         return
 
     elif func_name == "server_reboot":
+        instance = param['instance']
         gcp_instance_func("server_off", param)
         inst_info = gcp_instance_func("server_get", param)
         status = inst_info['state']
