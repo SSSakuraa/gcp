@@ -111,7 +111,7 @@ def instance_create():
                             'project': auth.project,
                             'zone': zone,
                             'service': service,
-                            'name':disk_name
+                            'disk_name':disk_name
                             }
                         while True:
                             if gcp_disk_func("disk_info",param)['status']=='READY':
