@@ -481,7 +481,7 @@ def gcp_instance_func(func_name, param):
         ip=[]
         eip=""
         for interface in network_if:
-            if 'ip' in interface:
+            if 'networkIP' in interface:
                 ip.append(interface['networkIP'])            
         if 'accessConfigs' in network_if[0]:
             if 'natIP' in network_if[0]['accessConfigs'][0]:
