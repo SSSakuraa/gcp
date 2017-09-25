@@ -55,15 +55,6 @@ def instance_create():
 
         disks=[]
         ebs=data['ebs']
-        {
-            "boot": "true",
-            "autoDelete": "true",
-            "initializeParams": {
-                "sourceImage":data['image'],
-                "diskSizeGb": "20",
-                "diskStorageType": "HDD"
-            }
-        }
         for disk in ebs:
             ###### bug here! create disks first.
             if disks == []:
