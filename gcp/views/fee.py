@@ -4,6 +4,7 @@ from pprint import pprint
 
 
 def get_fee():
+    pprint("get new fee here! miao miao miao")
     return Fee()
 
 
