@@ -48,7 +48,7 @@ def instance_create():
             'subnet_cidr': data['subnet_cidr']
         }
         network = gcp_network_func("find_network", param)
-        if data['subnet_cidr'] != None and data['subnet_cidr'] != "":
+        if data['subnet_cidr'] is not None and data['subnet_cidr'] != "":
             subnet_cidr = gcp_network_func("find_subnetwork", param)
         zone = auth.region + '-' + data['zone']
         access_configs = []

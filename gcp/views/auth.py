@@ -25,15 +25,15 @@ class Auth(object):
 
     # return google service for GET method
     def get_service(self, request):
-        (client_id, client_secret, refresh_token) = self.aes_decrypt(request.args.get(
-            'client_id'), request.args.get('client_secret'), request.args.get('refresh_token'))
-        if request.args.get('project_id') != None:
-            self.project = request.args.get('project_id')
-
-        if request.args.get('region_id') != None:
-            self.region = request.args.get('region_id')
-        elif request.args.get('region_name') != None:
-            self.region = Region().get_region_id(request.args.get('region_name'))
+        data = request.args.to_dict()
+        (client_id, client_secret, refresh_token) = self.aes_decrypt(
+            data['client_id'], data['client_secret'], data['refresh_token'])
+        if 'procect_id' in data.keys():
+            self.project = data['project_id']
+        if 'region_id' in data.keys():
+            self.region = data['region_id']
+        elif 'region_name' in data.keys():
+            self.region = Region().get_region_id(data['region_name'])
 #        if request.args.get('zone')!=None and self.region != '':
 #            self.zone=self.region+'-'+request.args.get('zone')
 
@@ -50,14 +50,14 @@ class Auth(object):
 
     # return google servcie for POST method
     def post_service(self, request):
-        data = json.loads(request.get_data())
+        data = request.form.to_dict()
         (client_id, client_secret, refresh_token) = self.aes_decrypt(
             data['client_id'], data['client_secret'], data['refresh_token'])
-        if 'procect_id' in data:
+        if 'procect_id' in data.keys():
             self.project = data['project_id']
-        if 'region_id' in data:
+        if 'region_id' in data.keys():
             self.region = data['region_id']
-        elif 'region_name' in data:
+        elif 'region_name' in data.keys():
             self.region = Region().get_region_id(data['region_name'])
 #        if data.has_key('zone') and self.region != '':
 #            self.zone=self.region+'-'+data['zone']
