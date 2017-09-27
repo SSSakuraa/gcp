@@ -15,8 +15,6 @@ from disks import gcp_disk_func
 instances = Blueprint('instances', __name__)
 
 # get server information with instance-name
-
-
 @instances.route('/servers/<instance>', methods=['GET'])
 def instance_getinfo(instance):
     try:
@@ -29,7 +27,6 @@ def instance_getinfo(instance):
             'instance': instance,
             'service': service,
         }
-
         return jsonify(gcp_instance_func("server_get", param))
     except errors.HttpError as e:
         msg = json.loads(e.content)
@@ -439,7 +436,7 @@ def instances_fee():
         msg = json.loads(e.content)
         return jsonify(msg=msg['error']['message']), msg['error']['code']
 
-
+# for test only
 @instances.route('/state', methods=['GET'])
 def instance_state():
     try:
@@ -461,100 +458,119 @@ def instance_state():
         msg = json.loads(e.content)
         return jsonify(msg=msg['error']['message']), msg['error']['code']
 
+
 # function interface for google API
-
-
 def gcp_instance_func(func_name, param):
-    service = param['service']
-    project = param['project']
-    zone = param['zone']
+    status = {
+        'TERMINATED': 'stopped',
+        'RUNNING': 'running',
+        'STOPPING': 'stopping',
+        'PROVISIONING': 'pending',  # reserving resources for instance
+        'STAGING': 'pending'  # preparing for launch
+
+    }
 
     if func_name == "server_list":
-        instance_list = []
-        myrequest = service.instances().list(project=project, zone=zone)
-        while myrequest is not None:
-            myresponse = myrequest.execute()
-
-            for instance in myresponse['items']:
-                # TODO: Change code below to process each `subnetwork` resource:
-                instance_list.append(instance['name'])
-            myrequest = service.instances().list_next(
-                previous_request=myrequest, previous_response=myresponse)
-        return instance_list
+        return gcp_server_list(param)
 
     if func_name == "server_get":
-        instance = param['instance']
-        myrequest = service.instances().get(project=project, zone=zone, instance=instance)
-        myresponse = myrequest.execute()
-        status = {
-            'TERMINATED': 'stopped',
-            'RUNNING': 'running',
-            'STOPPING': 'stopping',
-            'PROVISIONING': 'pending',  # reserving resources for instance
-            'STAGING': 'pending'  # preparing for launch
-
-        }
-        network_if = myresponse['networkInterfaces']
-        ip = []
-        eip = ""
-        for interface in network_if:
-            if 'networkIP' in interface:
-                ip.append(interface['networkIP'])
-        if 'accessConfigs' in network_if[0]:
-            if 'natIP' in network_if[0]['accessConfigs'][0]:
-                eip = network_if[0]['accessConfigs'][0]['natIP']
-        res = {
-            "id": myresponse["id"],
-            "launch_time": myresponse["creationTimestamp"],
-            "region": myresponse["zone"].split('/zones/')[1],
-            "ip": ip,
-            "os": myresponse["disks"][0]["licenses"][0].split('/licenses/')[1],
-            # TODO  search the disk info in disks
-            "image": myresponse["disks"][0]["licenses"][0].split('/licenses/')[1],
-            "instance_type": myresponse["machineType"].split('/machineTypes/')[1],
-            "eip": eip,
-            "status_check": "",  # TODO
-            "state": status[myresponse["status"]]
-
-        }
-        return res
+        param['status'] = status
+        return gcp_server_get(param)
 
     if func_name == "server_off":
-        instance = param['instance']
-        myrequest = service.instances().stop(
-            project=project, zone=zone, instance=instance)
-        myresponse = myrequest.execute()
-        return
+        gcp_server_off(param)
 
     elif func_name == 'server_on':
-        instance = param['instance']
-        myrequest = service.instances().start(
-            project=project, zone=zone, instance=instance)
+        gcp_server_on(param)
+
+    elif "server_delete" == func_name:
+        gcp_server_delete(param)
+
+    elif "server_modify" == func_name:
+        gcp_server_modify(param)
+
+    elif "server_reboot" == func_name:
+        gcp_server_reboot(param)
+
+    return
+
+
+def gcp_server_list(param):
+    myrequest = param['service'].instances().get(
+        project=param['project'], zone=param['zone'])
+    instance_list = []
+    while myrequest is not None:
         myresponse = myrequest.execute()
-        return
+        for instance in myresponse['items']:
+            instance_list.append(instance['name'])
+        myrequest = param['service'].instances().list_next(
+            previous_request=myrequest, previous_response=myresponse)
+    return instance_list
 
-    elif func_name == "server_delete":
-        instance = param['instance']
-        myrequest = service.instances().delete(
-            project=project, zone=zone, instance=instance)
-        myresponse = myrequest.execute()
-        return
 
-    elif func_name == "server_modify":
-        instance = param['instance']
-        myrequest = service.instances().setMachineType(
-            project=project, zone=zone, instance=instance, body=param['body'])
-        myresponse = myrequest.execute()
-        return
+def gcp_server_get(param):
+    myrequest = param['service'].instances().get(
+        project=param['project'], zone=param['zone'], instance=param['instance'])
+    myresponse = myrequest.execute()
+    status = param['status']
+    network_if = myresponse['networkInterfaces']
+    ip = []
+    eip = ""
+    for interface in network_if:
+        if 'networkIP' in interface:
+            ip.append(interface['networkIP'])
+    if 'accessConfigs' in network_if[0]:
+        if 'natIP' in network_if[0]['accessConfigs'][0]:
+            eip = network_if[0]['accessConfigs'][0]['natIP']
+    res = {
+        "id": myresponse["id"],
+        "launch_time": myresponse["creationTimestamp"],
+        "region": myresponse["zone"].split('/zones/')[1],
+        "ip": ip,
+        "os": myresponse["disks"][0]["licenses"][0].split('/licenses/')[1],
+        # TODO  search the disk info in disks
+        "image": myresponse["disks"][0]["licenses"][0].split('/licenses/')[1],
+        "instance_type": myresponse["machineType"].split('/machineTypes/')[1],
+        "eip": eip,
+        "status_check": "",  # TODO
+        "state": status[myresponse["status"]]
+    }
+    return res
 
-    elif func_name == "server_reboot":
-        instance = param['instance']
-        gcp_instance_func("server_off", param)
-        inst_info = gcp_instance_func("server_get", param)
-        status = inst_info['state']
-        while status != 'stopped':
-            status = gcp_instance_func("server_get", param)['state']
-        gcp_instance_func("server_on", param)
-        return
 
+def gcp_server_off(param):
+    myrequest = param['service'].instances().stop(
+        project=param['project'], zone=param['zone'], instance=param['instance'])
+    myrequest.execute()
+    return
+
+
+def gcp_server_on(param):
+    myrequest = param['service'].instances().start(
+        project=param['project'], zone=param['zone'], instance=param['instance'])
+    myrequest.execute()
+    return
+
+
+def gcp_server_delete(param):
+    myrequest = param['service'].instances().delete(
+        project=param['project'], zone=param['zone'], instance=param['instance'])
+    myrequest.execute()
+    return
+
+
+def gcp_server_modify(param):
+    myrequest = param['service'].instances().setMachineType(
+        project=param['project'], zone=param['zone'], instance=param['instance'], body=param['body'])
+    myrequest.execute()
+    return
+
+
+def gcp_server_reboot(param):
+    gcp_instance_func("server_off", param)
+    inst_info = gcp_instance_func("server_get", param)
+    status = inst_info['state']
+    while status != 'stopped':
+        status = gcp_instance_func("server_get", param)['state']
+    gcp_instance_func("server_on", param)
     return
