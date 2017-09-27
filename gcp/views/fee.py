@@ -3,6 +3,16 @@ import re
 from pprint import pprint
 
 
+def get_fee():
+    fee=Fee()
+    pprint("==================")
+    pprint(fee.city_dict)
+    pprint("==================")
+    return fee
+
+
+
+
 class Fee(object):
     def __init__(self):
         self.city_dict = self.get_city()
