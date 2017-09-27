@@ -323,10 +323,10 @@ if __name__=="__main__":
                     'region_id':'us-west1',
                     'region_name':'Oregon',
                     'instance_type':'n1-standard-8',
-                    'ebs':[{'size':100,'type':'standard','iops':100},
-                        {'size':100,'type':'standard','iops':100},
-                        {'size':100,'type':'standard','iops':100},
-                        {'size':100,'type':'standard','iops':100}
+                    'ebs':[{'size':100,'type':'HDD','iops':100},
+                        {'size':100,'type':'HDD','iops':100},
+                        {'size':100,'type':'HDD','iops':100},
+                        {'size':100,'type':'SSD','iops':100}
 
                     ],
                     'os':'os',
