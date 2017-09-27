@@ -58,7 +58,7 @@ def instance_create():
         
         quantity = data['quantity']
         disks_info = []
-        ebs = data['ebs']
+        param['ebs']=data['ebs']
         while quantity > 0:
             quantity = quantity - 1
             instance_disk=gcp_disk_func("disk_insert_batch",param)
