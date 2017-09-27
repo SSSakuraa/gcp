@@ -24,6 +24,9 @@ def gcp_disk_func(func_name, param):
     if func_name == "disk_info":
         return gcp_disk_info(param)
 
+    if func_name == "disk_info_batch":
+        return gcp_disk_info_batch(param)
+
 
 def gcp_disk_insert(param):
     import rstr
@@ -48,8 +51,35 @@ def gcp_disk_insert(param):
     return res
 
 
+# insert disks batch
+# [{'size': 100, 'type': 'HDD', 'iops': 100},
+#  {'size': 100, 'type': 'HDD', 'iops': 100},
+#  {'size': 100, 'type': 'HDD', 'iops': 100},
+#  {'size': 100, 'type': 'HDD', 'iops': 100}
+#  ]
+# return disk name and error info
 def gcp_disk_insert_batch(param):
-    return
+    ebs=param['ebs']
+    instance_disk = []
+    index = 0
+    for disk in ebs:
+        disk_param = {
+            'project': param['project'],
+            'zone': param['zone'],
+            'service': param['service'],
+            'sizeGb': disk['size'],
+            'storageType': disk['type']
+        }
+        try:
+            index = index + 1
+            disk_name = gcp_disk_func(
+                "disk_insert", disk_param)['name']
+            instance_disk.append({'disk_name': disk_name})
+        except errors.HttpError as e:
+            instance_disk.append({
+                'error': json.loads(e.content)['error']['message'],
+                'disk_index': index})
+    return instance_disk
 
 
 
@@ -82,3 +112,25 @@ def gcp_disk_info(param):
         'type': myresponse['type'].split('/diskTypes/')[1]
     }
     return res
+
+
+def gcp_disk_info_batch(param):
+    instance_disk=param['instance_disk_name']
+    for disk in instance_disk:
+        if 'error' in disk:
+            msg.append('error while creating disk ' + disk['index']+' for ' +
+                        name + ': ' + disk['error'])
+        else:
+            disk_param = {
+                'project': auth.project,
+                'zone': zone,
+                'service': service,
+                'disk_name': disk['disk_name']
+            }
+            while True:
+                if gcp_disk_func("disk_info", disk_param)['status'] == 'READY':
+                    break
+
+            disks.append({
+                'source': "/projects/" + auth.project + "/zones/" + zone + "/disks/" + disk['disk_name']
+            })

@@ -50,39 +50,21 @@ def instance_create():
         network = gcp_network_func("find_network", param)
         if data['subnet_cidr'] is not None and data['subnet_cidr'] != "":
             subnet_cidr = gcp_network_func("find_subnetwork", param)
-        zone = auth.region + '-' + data['zone']
+
         access_configs = []
         if data['eip_enable'] == 1:
             access_configs.append({})
 
-        batch_res = []
+        
         quantity = data['quantity']
         disks_info = []
         ebs = data['ebs']
         while quantity > 0:
             quantity = quantity - 1
-            instance_disk = []
-            index = 0
-            for disk in ebs:
-                disk_param = {
-                    'project': auth.project,
-                    'zone': zone,
-                    'service': service,
-                    'sizeGb': disk['size'],
-                    'storageType': disk['type']
-                }
-                try:
-                    index = index + 1
-                    disk_name = gcp_disk_func(
-                        "disk_insert", disk_param)['name']
-                    instance_disk.append({'disk_name': disk_name})
-                except errors.HttpError as e:
-                    instance_disk.append({
-                        'error': json.loads(e.content)['error']['message'],
-                        'disk_name': disk_name,
-                        'disk_index': index})
+            instance_disk=gcp_disk_func("disk_insert_batch",param)
             disks_info.append(instance_disk)
 
+        batch_res = []
         quantity = data['quantity']
         index = 0
         while index < quantity:
@@ -109,7 +91,7 @@ def instance_create():
                 index = index + 1
                 for disk in instance_disk:
                     if 'error' in disk:
-                        msg.append('error while creating disk for ' +
+                        msg.append('error while creating disk ' + disk['index']+' for ' +
                                    name + ': ' + disk['error'])
                     else:
                         disk_param = {
