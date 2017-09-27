@@ -50,7 +50,7 @@ class Auth(object):
 
     # return google servcie for POST method
     def post_service(self, request):
-        data = request.form.to_dict()
+        data = json.loads(request.get_data())
         (client_id, client_secret, refresh_token) = self.aes_decrypt(
             data['client_id'], data['client_secret'], data['refresh_token'])
         if 'procect_id' in data.keys():
