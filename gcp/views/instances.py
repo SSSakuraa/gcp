@@ -414,11 +414,12 @@ def instances_fee():
         from gcp import fee
         auth = Auth()
         auth.get_service(request)
-        ebs = list(eval(request.args.get('ebs')))
-        instance_type = request.args.get('instance_type')
-        os = request.args.get('os')
+        data = request.args.to_dict()
+        ebs = list(eval(data['ebs']))
+        instance_type = data['instance_type']
+        os = data['os']
 
-        quantity = int(request.args.get('quantity'))
+        quantity = int(data['quantity'])
         total_compute = round(fee.instance_price[instance_type]['price'][Region(
         ).get_region_name(auth.region)] * quantity, 2)
         total_ebs = 0
@@ -442,11 +443,12 @@ def instance_state():
     try:
         auth = Auth()
         service = auth.get_service(request)
-        zone = auth.region + '-' + request.args.get('zone')
+        data = request.args.to_dict()
+        zone = auth.region + '-' + data['zone']
         param = {
             'project': auth.project,
             'zone': zone,
-            'instance': request.args.get('instance'),
+            'instance': data['instance'],
             'service': service,
         }
         while True:
@@ -496,7 +498,7 @@ def gcp_instance_func(func_name, param):
 
 
 def gcp_server_list(param):
-    myrequest = param['service'].instances().get(
+    myrequest = param['service'].instances().list(
         project=param['project'], zone=param['zone'])
     instance_list = []
     while myrequest is not None:

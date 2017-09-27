@@ -28,7 +28,7 @@ class Auth(object):
         data = request.args.to_dict()
         (client_id, client_secret, refresh_token) = self.aes_decrypt(
             data['client_id'], data['client_secret'], data['refresh_token'])
-        if 'procect_id' in data.keys():
+        if 'project_id' in data.keys():
             self.project = data['project_id']
         if 'region_id' in data.keys():
             self.region = data['region_id']
@@ -53,7 +53,7 @@ class Auth(object):
         data = json.loads(request.get_data())
         (client_id, client_secret, refresh_token) = self.aes_decrypt(
             data['client_id'], data['client_secret'], data['refresh_token'])
-        if 'procect_id' in data.keys():
+        if 'project_id' in data.keys():
             self.project = data['project_id']
         if 'region_id' in data.keys():
             self.region = data['region_id']
