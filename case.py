@@ -43,7 +43,7 @@ if __name__=="__main__":
 
             url = "http://" + ip + ":5000/vpcs/list?" + url_data
             command = "curl '%s' -i" % url
-            pprint(command)
+            pprint(form_data)
             res = commands.getoutput(command)
             print(res)
 
@@ -63,7 +63,7 @@ if __name__=="__main__":
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/servers/"+instance_name+"?"+url_data
             command = "curl '%s' -i" % url
-            pprint(command)
+            pprint(form_data)
             res=commands.getoutput(command) 
             print(res)
 
@@ -109,7 +109,7 @@ if __name__=="__main__":
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/servers"
             command = "curl '%s' -i -d '%s' -X POST " % (url, json.dumps(form_data))
-            pprint(command)
+            pprint(form_data)
             res=commands.getoutput(command) 
             print(res)
         
@@ -138,7 +138,7 @@ if __name__=="__main__":
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/servers"
             command = "curl '%s' -i -d '%s' -X POST " % (url, json.dumps(form_data))
-            pprint(command)
+            pprint(form_data)
             res=commands.getoutput(command) 
             print(res)
 
@@ -160,7 +160,7 @@ if __name__=="__main__":
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/servers/"+instance_name
             command = "curl '%s' -i -X POST -d '%s' " % (url,json.dumps(form_data))
-            pprint(command)
+            pprint(form_data)
             res=commands.getoutput(command) 
             print(res)
 
@@ -183,7 +183,7 @@ if __name__=="__main__":
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/servers/"+instance_name
             command = "curl '%s' -i -X POST -d '%s' " % (url,json.dumps(form_data))
-            pprint(command)
+            pprint(form_data)
             res=commands.getoutput(command) 
             print(res)
 
@@ -204,7 +204,7 @@ if __name__=="__main__":
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/servers/"+instance_name
             command = "curl '%s' -i -X POST -d '%s' " % (url,json.dumps(form_data))
-            pprint(command)
+            pprint(form_data)
             res=commands.getoutput(command) 
             print(res)
 
@@ -225,7 +225,7 @@ if __name__=="__main__":
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/servers/"+instance_name
             command = "curl '%s' -i -X POST -d '%s'" % (url,json.dumps(form_data))
-            pprint(command)
+            pprint(form_data)
             res=commands.getoutput(command) 
             print(res)
         
@@ -247,7 +247,7 @@ if __name__=="__main__":
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/servers/"+instance_name
             command = "curl '%s' -i -X POST -d '%s' " % (url,json.dumps(form_data))
-            pprint(command)
+            pprint(form_data)
             res=commands.getoutput(command) 
             print(res)
 
@@ -268,7 +268,7 @@ if __name__=="__main__":
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/servers/"+instance_name
             command = "curl '%s' -i -X POST -d '%s' " % (url,json.dumps(form_data))
-            pprint(command)
+            pprint(form_data)
             res=commands.getoutput(command)
             print(res)
 
@@ -290,7 +290,7 @@ if __name__=="__main__":
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/server/batch"
             command = "curl '%s' -i -X POST -d '%s' " % (url,json.dumps(form_data))
-            pprint(command)
+            pprint(form_data)
             res=commands.getoutput(command)
             print(res)
 
@@ -309,7 +309,7 @@ if __name__=="__main__":
             url_data=urllib.urlencode(form_data)
             url='http://'+ip+':5000/server/batch?'+url_data
             command = "curl '%s' -i -X GET " % url
-            pprint(command)
+            pprint(form_data)
             res=commands.getoutput(command)
             print(res)
         
@@ -336,7 +336,7 @@ if __name__=="__main__":
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/fee?"+url_data
             command = "curl '%s' -i  " % url
-            pprint(command)
+            pprint(form_data)
             res=commands.getoutput(command) 
             print(res)
         
@@ -354,7 +354,7 @@ if __name__=="__main__":
             url_data=urllib.urlencode(form_data)
             url="http://"+ip+":5000/state?"+url_data
             command = "curl '%s' -i  " % url
-            pprint(command)
+            pprint(form_data)
             res=commands.getoutput(command) 
             print(res)
         else:
